@@ -59,16 +59,16 @@ const items = {
 const client = await createClient(options);
 
 try {
-	const { fik } = await client.request(items);
+  const { fik } = await client.request(items);
 }
 
 
 // ziskani FIK v Node.js 6+
 createClient(options)
-	.then(client => client.request(items))
-	.then(response => {
-		// response.fik
-	});
+  .then(client => client.request(items))
+  .then(response => {
+    // response.fik
+  });
 ```
 
 
