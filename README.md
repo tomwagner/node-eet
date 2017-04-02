@@ -110,6 +110,7 @@ Na 99% půjde o problém s certifikátem, více je popsáno v issue [#1](https:/
 - better test coverage
 - improve documentation
 - improve code
+- and [JakubMrozek/eet #9 Roadmap v1.0](https://github.com/JakubMrozek/eet/issues/9#issue-189261486)
 
 
 ## Changelog
