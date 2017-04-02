@@ -7,8 +7,8 @@ import util from '../lib/util';
 import validate from '../lib/validate';
 
 
-const PRIVATE_KEY = fs.readFileSync('test/keys/private.pem');
-const CERTIFICATE = fs.readFileSync('test/keys/certificate.pem');
+const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
+const CERTIFICATE = fs.readFileSync('./test/keys/certificate.pem');
 const TEST_PKP = 'JvCv0lXfT74zuviJaHeO91guUfum1MKhq0NNPxW0YlBGvIIt+I4QxEC3QP6BRwEkIS14n2WN+9oQ8nhQPYwZX7L4W9Ie7CYv1ojcl/YiF4560EdB3IpRNRj3UjQlwSZ5ucSM9vWqp0UTbhJDSUk5/WjC/CEiSYv7OQIqa0NJ0f0+ldzGveLRSF34eu2iqAhs/yfDnENlnMDPVB5ko/zQO0vcC93k5DEWEoytTIAsKd6jKSO7eama8Qe+d0wq9vBzudkfLgCe2C1iERJuyHknhjo9KOx10h5wk99QqVGX8tthpAmryDcX2N0ZGkzJHuzzebnYsxXFYI2tKOJLiLLoLQ==';
 
 test('generate PKP', t => {
@@ -23,24 +23,25 @@ test('generate PKP', t => {
 		'34113.00'
 	);
 
-	t.is(result, TEST_PKP)
+	t.is(result, TEST_PKP);
 
 });
 
 test('generate BKP', t => {
-	t.is(eet.generateBKP(TEST_PKP), '3F9119C1-FBF34535-D30B60F8-9859E4A6-C8C8AAFA')
+	t.is(eet.generateBKP(TEST_PKP), '3F9119C1-FBF34535-D30B60F8-9859E4A6-C8C8AAFA');
 });
 
 test('format date', t => {
 	const date = new Date('2016-08-05T00:30:12+02:00');
-	t.is(util.formatDate(date), '2016-08-04T22:30:12Z')
+	t.is(util.formatDate(date), '2016-08-04T22:30:12Z');
 });
 
 test('format number', t => {
-	t.is(util.formatNumber(12), '12.00')
+	t.is(util.formatNumber(12), '12.00');
 });
 
 test('validate required', t => {
+
 	t.notThrows(() => validate.requiredItems({
 		dicPopl: 'CZ1212121218',
 		idPokl: 1,
@@ -49,29 +50,31 @@ test('validate required', t => {
 		datTrzby: new Date(),
 		celkTrzba: 1000
 	}));
+
 	t.throws(() => validate.requiredItems({
 		idPokl: 1
 	}));
+
 });
 
 test('validate vat id number', t => {
 	t.notThrows(() => validate.vatIdNumber('CZ1212121218'));
-	t.throws(() => validate.vatIdNumber(1212121218))
+	t.throws(() => validate.vatIdNumber(1212121218));
 });
 
 test('validate business premises id', t => {
 	t.notThrows(() => validate.businessPremisesId(25));
-	t.throws(() => validate.businessPremisesId(12345678))
+	t.throws(() => validate.businessPremisesId(12345678));
 });
 
 test('validate cash register id', t => {
 	t.notThrows(() => validate.cashRegisterId('1aZ.,:;/#-_'));
-	t.throws(() => validate.cashRegisterId('@@@'))
+	t.throws(() => validate.cashRegisterId('@@@'));
 });
 
 test('validate receipt number', t => {
 	t.notThrows(() => validate.receiptNumber('0aA.,:;/#-_'));
-	t.throws(() => validate.receiptNumber('@@@'))
+	t.throws(() => validate.receiptNumber('@@@'));
 });
 
 test('validate date', t => {
@@ -140,9 +143,8 @@ test('do request', async t => {
 
 	const response = await eet.doRequest(options, data);
 
-	// TODO offline
 	t.truthy(response.fik.length === 39);
 
+	// TODO test offline
+
 });
-
-
