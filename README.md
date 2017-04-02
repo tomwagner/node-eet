@@ -1,5 +1,9 @@
 # eet
 
+[![npm](https://img.shields.io/npm/v/@nfctron/eet.svg?maxAge=2592000)](https://www.npmjs.com/package/@nfctron/eet)
+[![eet channel on discord](https://img.shields.io/badge/discord-join%20chat-61dafb.svg)](https://discord.gg/bg3yazg)
+
+
 Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1_EN.pdf) in the Czech Republic) ([Elektronickou evidenci tržeb](http://www.etrzby.cz/cs/technicka-specifikace)).
 
 > _Note:_ this library is still in development (version 0.x). API should stay the same, but there are not enough tests and documentation.
@@ -100,13 +104,13 @@ pem.readPkcs12(file, {p12Password: password}, (err, result) => {
 
 |        name         |  type   |                                     required                                      | default |                                                      description                                                       |
 |---------------------|---------|-----------------------------------------------------------------------------------|---------|------------------------------------------------------------------------------------------------------------------------|
-| privateKey          | string  | yes                                                                               |         | private key for the certificate                                                                                        |
-| certificate         | string  | yes                                                                               |         | certificate                                                                                                            |
+| **privateKey**      | string  | **yes**                                                                           |         | private key for the certificate                                                                                        |
+| **certificate**     | string  | **yes**                                                                           |         | certificate                                                                                                            |
 | offline             | boolean | no                                                                                | false   | if true, includes PKP and BKB in response on unsuccessful request to EET                                               |
 | playground          | boolean | no                                                                                | false   | use Playground EET endpoint instead of production                                                                      |
 | timeout             | number  | no                                                                                | 2000 ms | maximal time to wait in milliseconds                                                                                   |
 | measureResponseTime | boolean | no                                                                                | false   | measure response time using node-soap's [client.lastElapsedTime](https://github.com/vpulim/node-soap#options-optional) |
-| httpClient object   | no      | see [soap options](https://github.com/vpulim/node-soap#options), just for testing |         |                                                                                                                        |
+| httpClient          | object  | no                                                                                |         | see [soap options](https://github.com/vpulim/node-soap#options), just for testing                                      |
 
 
 ### EETClient.request(items)
