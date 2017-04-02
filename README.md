@@ -39,36 +39,36 @@ const { createClient } = require('eet');
 
 // privatni klic a certifikat podnikatele
 const options = {
-  privateKey: '...',
-  certificate: '...',
-  playground: true
-}
+	privateKey: '...',
+	certificate: '...',
+	playground: true
+};
 
 // polozky, ktere se posilaji do EET 
 const items = {
-  dicPopl: 'CZ1212121218',
-  idPokl: '/5546/RO24',
-  poradCis: '0/6460/ZQ42',
-  datTrzby: new Date(),
-  celkTrzba: 34113,
-  idProvoz: '273'
-}
+	dicPopl: 'CZ1212121218',
+	idPokl: '/5546/RO24',
+	poradCis: '0/6460/ZQ42',
+	datTrzby: new Date(),
+	celkTrzba: 34113,
+	idProvoz: '273'
+};
 
 // ziskani FIK (kod uctenky) pomoci async/await (Node.js 8+ / Babel)
 
 const client = await createClient(options);
 
 try {
-  const { fik } = await client.request(items);
+	const { fik } = await client.request(items);
 }
 
 
 // ziskani FIK v Node.js 6+
 createClient(options)
-  .then(client => client.request(items))
-  .then(response => {
-    // response.fik
-  });
+	.then(client => client.request(items))
+	.then(response => {
+		// response.fik
+	});
 ```
 
 
@@ -90,9 +90,9 @@ const file = require('fs').readFileSync('cesta/k/souboru.p12');
 const password = ''; //pro testovací certifikáty EET je heslo 'eet'
 
 pem.readPkcs12(file, {p12Password: password}, (err, result) => {
-  if (err) ...
-  // result.key je privátní klíč
-  // result.cert je certifikát
+	if (err) ...
+	// result.key je privátní klíč
+	// result.cert je certifikát
 });
 ```
 
@@ -140,31 +140,7 @@ Na 99% půjde o problém s certifikátem, více je popsáno v issue [#1](https:/
 
 ## Changelog
 
-### v0.7 (6. 3. 2017)
-- vrácena podpora pro Node.js v4 ([#16](https://github.com/JakubMrozek/eet/pull/16))
-- oprava regulárního výrazu pro kontrolu formátu pokladny ([#13](https://github.com/JakubMrozek/eet/pull/13))
-
-### v0.6 (6. 2. 2017)
-- doplněna volba `options.offline`
-- balíček uuid aktualizován na 3.0
-
-### v0.5 (2. 12. 2016) + v0.5.1
-- doplněna možnost určit timeout 
-
-### v0.4 (13. 11. 2016)
-- oprava generování PKP ([#6](https://github.com/JakubMrozek/eet/issues/6))
-- privátní klíč není potřeba převádět na buffer ([#4](https://github.com/JakubMrozek/eet/pull/4))
-
-### v0.3 (13. 11. 2016)
-- doplněny validace
-- v odpovědi se vrací warningy
-
-### v0.2 (30. 10. 2016)
-- podpora verze Node.js 4+
-- doplněna dokumentace (časté chyby a převod z .p12 na .pem pomocí balíčku `pem`)
-
-### v0.1 (20. 10. 2016)
-- první veřejná verze
+see description of each release in [Releases](https://github.com/NFCtron/eet/releases)
 
 
 ## License
