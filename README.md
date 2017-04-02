@@ -9,14 +9,12 @@ Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz
 ## Differences against the original library
 
 This is fork of [JakubMrozek/eet](https://github.com/JakubMrozek/eet) with the following **changes**:
-- reformatted code
-- upgrade dependencies
-- improve package.json
+- **completely rewritten to allow multiple request with the same client (performance improvement)**  
+	\+ _currentDate_ and _uuid_ moved from options to **items** and renamed to **datOdesl** and **uuidZpravy** to improve consistency
 - fixed LICENSE (to be recognized by GitHub)
 - improved README
 - added yarn.lock
-- improved package.json
-- **Breaking change:** _currentDate_ and _uuid_ moved from options to **items** and renamed to **datOdesl** and **uuidZpravy** to improve consistency
+- improved package.json, upgraded dependencies
 
 
 ## Installation 
@@ -26,14 +24,14 @@ Requirements: Node.js v4+
 Using npm
 
 ```bash
-npm install nfc-pcsc --save
+npm install @nfctron/eet --save
 ```
 
 
 ## Example usage
 
 ```javascript
-const eet = require('eet');
+const { createClient } = require('eet');
 
 // privatni klic a certifikat podnikatele
 const options = {
@@ -53,21 +51,35 @@ const items = {
 }
 
 // ziskani FIK (kod uctenky) pomoci async/await (Node.js 8+ / Babel)
-const { fik } = await eet(options, items);
+
+const client = await createClient(options);
+
+try {
+	const { fik } = await client.request(items);
+}
+
 
 // ziskani FIK v Node.js 6+
-eet(options, items).then(response => {
-  // response.fik
-});
+createClient(options)
+	.then(client => client.request(items))
+	.then(response => {
+		// response.fik
+	});
 ```
 
 
-## Převod .p12 na .pem
+## Convert .p12 to .pem
 
-Balíček pracuje s klíči v textovém formátu, z binárního .p12 je lze převést např. pomocí balíčku [pem](https://github.com/andris9/pem):
+**TODO example using command line with OpenSSL**
+
+This library works only with certificates and keys in string format .pem.
+From the binary .p12 you can convert them for example by package [pem](https://github.com/andris9/pem):
+
+```bash
+npm install pem --save
+```
 
 ```javascript
-// npm install pem
 const pem = require('pem');
 
 const file = require('fs').readFileSync('cesta/k/souboru.p12');
@@ -83,18 +95,28 @@ pem.readPkcs12(file, {p12Password: password}, (err, result) => {
 
 ## API
 
-### eet (options, items)
 
-* *options* - Volby pro odesílání požadavku (pro SOAP).
-  * *options.privateKey* (string) - Privátní klíč
-  * *options.certificate* (string) - Certifikát
-  * *options.playground* (bool) - Posílat požadavky na playground? Def. false (ne).
-  * *options.httpClient* - Viz [soap options](https://github.com/vpulim/node-soap#options), slouží pro testování.
-  * *options.timeout* (number) - Nastavení max. timeoutu (defaultně 2000 ms)
-  * *options.offline* (bool) - Do chybové hlášky vkládat PKP a BKP
-* *items* - Položky, které se posílají do EET. Mají stejný název jako ve specifikaci EET, jen používají cammel case (tedy místo dic_popl se používá dicPopl)
+### createClient(options)
 
-TODO add table of items (required, data type, and description)
+|        name         |  type   |                                     required                                      | default |                                                      description                                                       |
+|---------------------|---------|-----------------------------------------------------------------------------------|---------|------------------------------------------------------------------------------------------------------------------------|
+| privateKey          | string  | yes                                                                               |         | private key for the certificate                                                                                        |
+| certificate         | string  | yes                                                                               |         | certificate                                                                                                            |
+| offline             | boolean | no                                                                                | false   | if true, includes PKP and BKB in response on unsuccessful request to EET                                               |
+| playground          | boolean | no                                                                                | false   | use Playground EET endpoint instead of production                                                                      |
+| timeout             | number  | no                                                                                | 2000 ms | maximal time to wait in milliseconds                                                                                   |
+| measureResponseTime | boolean | no                                                                                | false   | measure response time using node-soap's [client.lastElapsedTime](https://github.com/vpulim/node-soap#options-optional) |
+| httpClient object   | no      | see [soap options](https://github.com/vpulim/node-soap#options), just for testing |         |                                                                                                                        |
+
+
+### EETClient.request(items)
+
+* *items* - data to send in EET request, same name as in EET specification but in camel case (so instead of `dic_popl` use `dicPopl`)
+
+	**TODO** add table of items (required, data type, and description)
+
+
+TODO document whole API
 
 
 ## Frequent errors
@@ -106,10 +128,9 @@ Na 99% půjde o problém s certifikátem, více je popsáno v issue [#1](https:/
 
 ## Roadmap
 
-- possibly performance improvements (create signatures and hashes asynchronously)
+- possibly create signatures and hashes asynchronously
 - better test coverage
 - improve documentation
-- improve code
 - and [JakubMrozek/eet #9 Roadmap v1.0](https://github.com/JakubMrozek/eet/issues/9#issue-189261486)
 
 

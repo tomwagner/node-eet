@@ -17,10 +17,16 @@
     "email": "jakub.mrozek@gmail.com",
     "url": "http://www.ronnieweb.net/"
   },
+  "contributors": [
+    {
+      "name": "Martin Endler",
+      "url": "https://github.com/pokusew"
+    }
+  ],
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JakubMrozek/eet.git"
+    "url": "https://github.com/NFCtron/eet.git"
   },
   "scripts": {
     "build": "babel src --out-dir dist",
