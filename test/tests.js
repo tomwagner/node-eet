@@ -2,9 +2,11 @@
 
 import fs from 'fs';
 import test from 'ava';
-import eet from '../src/index';
-import util from '../src/utils';
-import validate from '../src/validate';
+import { createClient } from '../src/index';
+import * as crypto from '../src/crypto';
+import * as utils from '../src/utils';
+import * as validate from '../src/validate';
+import * as helpers from '../src/helpers';
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
@@ -13,7 +15,7 @@ const TEST_PKP = 'JvCv0lXfT74zuviJaHeO91guUfum1MKhq0NNPxW0YlBGvIIt+I4QxEC3QP6BRw
 
 test('generate PKP', t => {
 
-	const result = eet.generatePKP(
+	const result = crypto.generatePKP(
 		PRIVATE_KEY,
 		'CZ1212121218',
 		'273',
@@ -28,16 +30,16 @@ test('generate PKP', t => {
 });
 
 test('generate BKP', t => {
-	t.is(eet.generateBKP(TEST_PKP), '3F9119C1-FBF34535-D30B60F8-9859E4A6-C8C8AAFA');
+	t.is(crypto.generateBKP(TEST_PKP), '3F9119C1-FBF34535-D30B60F8-9859E4A6-C8C8AAFA');
 });
 
 test('format date', t => {
 	const date = new Date('2016-08-05T00:30:12+02:00');
-	t.is(util.formatDate(date), '2016-08-04T22:30:12Z');
+	t.is(utils.formatDate(date), '2016-08-04T22:30:12Z');
 });
 
 test('format number', t => {
-	t.is(util.formatNumber(12), '12.00');
+	t.is(utils.formatNumber(12), '12.00');
 });
 
 test('validate required', t => {
@@ -99,7 +101,7 @@ test('validate financial number', t => {
 
 test('get data items', t => {
 
-	const result = eet.getDataItems({
+	const result = helpers.getDataItems({
 		dicPopl: 'CZ1212121218',
 		idPokl: '/5546/RO24',
 		poradCis: '0/6460/ZQ42',
@@ -141,7 +143,7 @@ test('do request', async t => {
 		certificate: CERTIFICATE
 	};
 
-	const response = await eet.doRequest(options, data);
+	const response = await createClient(options).then(client => client.request(data));
 
 	t.truthy(response.fik.length === 39);
 

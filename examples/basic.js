@@ -1,7 +1,7 @@
 "use strict";
 
 const fs = require('fs');
-const eet = require('../dist/index');
+const { createClient } = require('../dist');
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
@@ -44,7 +44,7 @@ const items = {
 };
 
 
-eet(options)
+createClient(options)
 	.then(client => {
 
 		client.request(items)
