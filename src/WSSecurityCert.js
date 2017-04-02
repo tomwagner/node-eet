@@ -1,6 +1,6 @@
 "use strict";
 
-const SignedXml = require('xml-crypto').SignedXml;
+import { SignedXml } from 'xml-crypto';
 
 
 const SIGNATURE_ALGORITHM = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
@@ -36,40 +36,65 @@ function getTokenXml(id) {
 
 function getSecurityXml(id, binaryToken) {
 
-	return (
-		`<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
-               xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-               soap:mustUnderstand="1">
-    <wsse:BinarySecurityToken
-                EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
-                ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
-                wsu:Id="${id}">${binaryToken}</wsse:BinarySecurityToken>
-    </wsse:Security>`
-	);
+	return (`<wsse:Security
+	xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+	soap:mustUnderstand="1"
+>
+	<wsse:BinarySecurityToken
+		EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
+		ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
+		wsu:Id="${id}">
+		${binaryToken}
+	</wsse:BinarySecurityToken>
+</wsse:Security>`);
 
 }
 
-class WSSecurityCert {
+export default class WSSecurityCert {
 
-	constructor(privatePEM, publicP12PEM, uid) {
-		this.publicP12PEM = removeCertHeaderAndFooter(publicP12PEM);
-		this.x509Id = 'x509-' + uid.replace(/-/gm, '');
+	constructor(privateKey, certificate) {
+
+		this.x509Id = null;
+
+		this.publicP12PEM = removeCertHeaderAndFooter(certificate);
 
 		this.signer = new SignedXml();
-		this.signer.signingKey = privatePEM;
+		this.signer.signingKey = privateKey;
 		this.signer.signatureAlgorithm = SIGNATURE_ALGORITHM;
 		this.signer.addReference("//*[local-name(.)='Body']", TRANSFORM_ALGORITHMS, DIGEST_ALGORITHM);
+
 		this.signer.keyInfoProvider = {};
 		this.signer.keyInfoProvider.getKeyInfo = () => getTokenXml(this.x509Id);
+
+	}
+
+	updateX509Id(xml) {
+
+		const uuidMatch = xml.match(/uuid_zpravy="(.{36})"/);
+
+		if (!uuidMatch) {
+			throw new Error('uuid_zpravy not found in request body. Security token cannot be computed.')
+		}
+
+		const uid = uuidMatch[1];
+
+		this.x509Id = 'x509-' + uid.replace(/-/gm, '');
+
 	}
 
 	postProcess(xml) {
+
+		this.updateX509Id(xml);
+
 		const secHeader = getSecurityXml(this.x509Id, this.publicP12PEM);
+
 		const xmlWithSec = insertStr(secHeader, xml, xml.indexOf('</soap:Header>'));
+
 		this.signer.computeSignature(xmlWithSec);
+
 		return insertStr(this.signer.getSignatureXml(), xmlWithSec, xmlWithSec.indexOf('</wsse:Security>'));
+
 	}
 
 }
-
-module.exports = WSSecurityCert;

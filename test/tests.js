@@ -2,9 +2,9 @@
 
 import fs from 'fs';
 import test from 'ava';
-import eet from '../lib/eet';
-import util from '../lib/util';
-import validate from '../lib/validate';
+import eet from '../src/index';
+import util from '../src/utils';
+import validate from '../src/validate';
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');

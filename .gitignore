@@ -14,3 +14,5 @@ Desktop.ini
 **/.idea/tasks.xml
 
 *.log
+
+/dist/

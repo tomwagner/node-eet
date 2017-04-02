@@ -1,5 +1,5 @@
 {
-  "name": "eet",
+  "name": "@nfctron/eet",
   "version": "0.7.0",
   "description": "Node.js knihovna pro EET.",
   "keywords": [
@@ -17,12 +17,13 @@
     "email": "jakub.mrozek@gmail.com",
     "url": "http://www.ronnieweb.net/"
   },
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/JakubMrozek/eet.git"
   },
   "scripts": {
+    "build": "babel src --out-dir dist",
     "test": "ava test/tests.js"
   },
   "dependencies": {
@@ -31,6 +32,10 @@
     "xml-crypto": "^0.9.0"
   },
   "devDependencies": {
-    "ava": "^0.18.2"
+    "ava": "^0.18.2",
+    "babel-cli": "^6.24.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.0",
+    "babel-plugin-transform-export-extensions": "^6.22.0",
+    "babel-register": "^6.24.0"
   }
 }

@@ -8,13 +8,13 @@
  * protoze jinak vraci EET servery chybu "spatny format".
  *
  */
-function formatDate(date) {
+export function formatDate(date) {
 
 	return date.toISOString().split('.')[0] + 'Z';
 
 }
 
-function formatBool(value, defaultValue) {
+export function formatBool(value, defaultValue) {
 
 	if (value === undefined) {
 		value = defaultValue;
@@ -24,19 +24,14 @@ function formatBool(value, defaultValue) {
 
 }
 
-function formatNumber(num) {
+export function formatNumber(num) {
 
 	return !isNaN(+num) ? (+num).toFixed(2) : num;
 
 }
 
-function isDefinedAndNotNull(value) {
+export function isDefinedAndNotNull(value) {
 
 	return value !== undefined && value !== null;
 
 }
-
-exports.formatDate = formatDate;
-exports.formatBool = formatBool;
-exports.formatNumber = formatNumber;
-exports.isDefinedAndNotNull = isDefinedAndNotNull;
