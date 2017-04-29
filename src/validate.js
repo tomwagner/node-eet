@@ -5,7 +5,7 @@ import { ValidationError, ResponseError } from './errors';
 
 
 /**
- * Zkontroluje, zda jsou zadany všechny povinné položky
+ * Check if all required items are set
  */
 export function requiredItems(items) {
 
@@ -25,7 +25,7 @@ export function requiredItems(items) {
 }
 
 /**
- * Validace DIČ
+ * Validate VAT ID
  */
 export function vatIdNumber(value) {
 
@@ -36,40 +36,40 @@ export function vatIdNumber(value) {
 }
 
 /**
- * Validace označení provozovny
+ * Validate idProvoz
  */
-export function businessPremisesId(value) {
+export function idProvoz(value) {
 
-	if (!/^[1-9][0-9]{0,5}$/.test(value)) {
-		throw new ValidationError(`Value '${value}' doesn't match pattern for business premises ID.`)
+	if (!/^[1-9][0-9]{0,6}$/.test(value)) {
+		throw new ValidationError(`Value '${value}' doesn't match required pattern for idProvoz.`)
 	}
 
 }
 
 /**
- * Validace označení pokladny
+ * Validate idPokl
  */
-export function cashRegisterId(value) {
+export function idPokl(value) {
 
 	if (!/^[0-9a-zA-Z\.,:;/#\-_ ]{1,20}$/.test(value)) {
-		throw new ValidationError(`Value '${value}' doesn't match pattern for cash register ID.`)
+		throw new ValidationError(`Value '${value}' doesn't match required pattern for idPokl.`)
 	}
 
 }
 
 /**
- * Validace čísla účtenky
+ * Validate poradCis
  */
-export function receiptNumber(value) {
+export function poradCis(value) {
 
-	if (!/^[0-9a-zA-Z\.,:;/#\-_]{1,20}$/.test(value)) {
-		throw new ValidationError(`Value '${value}' doesn't match pattern for serial number of receipt.`)
+	if (!/^[0-9a-zA-Z\.,:;/#\-_ ]{1,25}$/.test(value)) {
+		throw new ValidationError(`Value '${value}' doesn't match required pattern for poradCis.`)
 	}
 
 }
 
 /**
- * Validace data
+ * Validate date
  */
 export function date(value) {
 
@@ -80,18 +80,18 @@ export function date(value) {
 }
 
 /**
- * Validace režimu odeslání
+ * Validate rezim
  */
-export function regime(value) {
+export function rezim(value) {
 
 	if (!/^[01]$/.test(value)) {
-		throw new ValidationError(`Value '${value}' doesn't match pattern for sale regime.`);
+		throw new ValidationError(`Value '${value}' doesn't match required pattern for rezim.`);
 	}
 
 }
 
 /**
- * Kontrola číselných hodnot
+ * Validate financial number
  */
 export function financialNumber(value) {
 
@@ -104,7 +104,7 @@ export function financialNumber(value) {
 }
 
 /**
- * Zpracuje chybnou odpoved
+ * Process error response
  */
 export function httpResponse(response) {
 

@@ -25,8 +25,8 @@ const items = {
 	overeni: false,
 
 	dicPopl: 'CZ1212121218',
-	idProvoz: '273',
-	idPokl: '/5546/RO24',
+	idProvoz: 273,
+	idPokl: '/554/RO24',
 
 	poradCis: '0/6460/ZQ42',
 	datTrzby: new Date(),

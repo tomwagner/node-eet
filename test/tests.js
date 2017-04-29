@@ -64,19 +64,19 @@ test('validate vat id number', t => {
 	t.throws(() => validate.vatIdNumber(1212121218));
 });
 
-test('validate business premises id', t => {
-	t.notThrows(() => validate.businessPremisesId(25));
-	t.throws(() => validate.businessPremisesId(12345678));
+test('validate idProvoz', t => {
+	t.notThrows(() => validate.idProvoz(25));
+	t.throws(() => validate.idProvoz(12345678));
 });
 
-test('validate cash register id', t => {
-	t.notThrows(() => validate.cashRegisterId('1aZ.,:;/#-_'));
-	t.throws(() => validate.cashRegisterId('@@@'));
+test('validate idPokl', t => {
+	t.notThrows(() => validate.idPokl('1aZ.,:;/#-_'));
+	t.throws(() => validate.idPokl('@@@'));
 });
 
-test('validate receipt number', t => {
-	t.notThrows(() => validate.receiptNumber('0aA.,:;/#-_'));
-	t.throws(() => validate.receiptNumber('@@@'));
+test('validate poradCis', t => {
+	t.notThrows(() => validate.poradCis('0aA.,:;/#-_'));
+	t.throws(() => validate.poradCis('@@@'));
 });
 
 test('validate date', t => {
@@ -85,10 +85,10 @@ test('validate date', t => {
 	t.throws(() => validate.date('test'));
 });
 
-test('validate regime', t => {
-	t.notThrows(() => validate.regime(1));
-	t.notThrows(() => validate.regime('1'));
-	t.throws(() => validate.regime('test'));
+test('validate rezim', t => {
+	t.notThrows(() => validate.rezim(1));
+	t.notThrows(() => validate.rezim('1'));
+	t.throws(() => validate.rezim('test'));
 });
 
 test('validate financial number', t => {

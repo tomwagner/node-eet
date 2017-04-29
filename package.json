@@ -1,11 +1,14 @@
 {
   "name": "@nfctron/eet",
   "version": "0.8.1",
-  "description": "Node.js knihovna pro EET.",
+  "description": "Node.js library for EET",
   "keywords": [
+    "babis",
     "babiš",
     "eet",
-    "elektronická evidence tržeb"
+    "electronic registration of sales",
+    "elektronická evidence tržeb",
+    "sales evidence"
   ],
   "homepage": "https://github.com/NFCtron/eet#readme",
   "bugs": {
@@ -38,11 +41,11 @@
     "xml-crypto": "^0.9.0"
   },
   "devDependencies": {
-    "ava": "^0.18.2",
-    "babel-cli": "^6.24.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.0",
+    "ava": "^0.19.1",
+    "babel-cli": "^6.24.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-plugin-transform-export-extensions": "^6.22.0",
-    "babel-register": "^6.24.0",
+    "babel-register": "^6.24.1",
     "cross-env": "^4.0.0"
   },
   "ava": {

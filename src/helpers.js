@@ -52,20 +52,20 @@ export function getDataItems(items) {
 	validate.vatIdNumber(items.dicPopl);
 	data.dic_popl = items.dicPopl;
 
-	validate.businessPremisesId(items.idProvoz);
+	validate.idProvoz(items.idProvoz);
 	data.id_provoz = items.idProvoz;
 
-	validate.cashRegisterId(items.idPokl);
+	validate.idPokl(items.idPokl);
 	data.id_pokl = items.idPokl;
 
-	validate.receiptNumber(items.poradCis);
+	validate.poradCis(items.poradCis);
 	data.porad_cis = items.poradCis;
 
 	validate.date(items.datTrzby);
 	data.dat_trzby = formatDate(items.datTrzby);
 
 	if (isDefinedAndNotNull(items.rezim)) {
-		validate.regime(items.rezim);
+		validate.rezim(items.rezim);
 		data.rezim = items.rezim;
 	}
 	else {
