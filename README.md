@@ -23,12 +23,18 @@ This is fork of [JakubMrozek/eet](https://github.com/JakubMrozek/eet) with the f
 
 ## Installation 
 
-Requirements: Node.js v4+
+> Requirements: **Node.js 7+** (it might work under 6.x but it is not tested)
 
-Using npm
+Using npm:
 
 ```bash
 npm install @nfctron/eet --save
+```
+
+or with yarn:
+
+```bash
+yarn add @nfctron/eet
 ```
 
 

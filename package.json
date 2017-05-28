@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "babel src --out-dir dist",
-    "test": "cross-env NODE_ENV=test ava test/tests.js"
+    "test": "cross-env NODE_ENV=test ava test/tests.js --verbose"
   },
   "dependencies": {
     "soap": "^0.19.0",
@@ -46,7 +46,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-plugin-transform-export-extensions": "^6.22.0",
     "babel-register": "^6.24.1",
-    "cross-env": "^4.0.0"
+    "cross-env": "^5.0.0"
   },
   "ava": {
     "require": "babel-register",
