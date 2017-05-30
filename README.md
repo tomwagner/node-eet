@@ -1,6 +1,7 @@
 # eet
 
 [![npm](https://img.shields.io/npm/v/@nfctron/eet.svg?maxAge=2592000)](https://www.npmjs.com/package/@nfctron/eet)
+[![build status](https://img.shields.io/travis/NFCtron/eet/master.svg)](https://travis-ci.org/NFCtron/eet)
 [![eet channel on discord](https://img.shields.io/badge/discord-join%20chat-61dafb.svg)](https://discord.gg/bg3yazg)
 
 
