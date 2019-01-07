@@ -21,7 +21,7 @@ export function getBodyItems(privateKey, items) {
 	return {
 		Hlavicka: getHeaderItems(items.uuidZpravy, items.datOdesl, items.prvniZaslani, items.overeni),
 		Data: getDataItems(items),
-		KontrolniKody: getFooterItems(privateKey, items)
+		KontrolniKody: getFooterItems(privateKey, items),
 	}
 
 }
@@ -36,8 +36,8 @@ export function getHeaderItems(uuidZpravy, datOdesl, prvniZaslani, overeni) {
 			uuid_zpravy: uuidZpravy,
 			dat_odesl: formatDate(datOdesl),
 			prvni_zaslani: formatBool(prvniZaslani, true),
-			overeni: formatBool(overeni, false)
-		}
+			overeni: formatBool(overeni, false),
+		},
 	}
 
 }
@@ -93,7 +93,7 @@ export function getDataItems(items) {
 		pouzitZboz2: 'pouzit_zboz2',
 		pouzitZboz3: 'pouzit_zboz3',
 		urcenoCerpZuct: 'urceno_cerp_zuct',
-		cerpZuct: 'cerp_zuct'
+		cerpZuct: 'cerp_zuct',
 	};
 
 	Object.keys(map)
@@ -104,7 +104,7 @@ export function getDataItems(items) {
 		});
 
 	return {
-		attributes: data
+		attributes: data,
 	};
 
 }
@@ -121,7 +121,7 @@ export function getFooterItems(privateKey, items) {
 		items.idPokl,
 		items.poradCis,
 		formatDate(items.datTrzby),
-		formatNumber(items.celkTrzba)
+		formatNumber(items.celkTrzba),
 	);
 
 	const bkp = generateBKP(pkp);
@@ -131,17 +131,17 @@ export function getFooterItems(privateKey, items) {
 			attributes: {
 				digest: 'SHA256',
 				cipher: 'RSA2048',
-				encoding: 'base64'
+				encoding: 'base64',
 			},
-			$value: pkp
+			$value: pkp,
 		},
 		bkp: {
 			attributes: {
 				digest: 'SHA1',
-				encoding: 'base16'
+				encoding: 'base16',
 			},
-			$value: bkp
-		}
+			$value: bkp,
+		},
 	}
 
 }
@@ -161,7 +161,7 @@ export function getResponseItems(response, duration) {
 		date: new Date(header.dat_prij),
 		test: body.test === 'true',
 		fik: body.fik,
-		warnings: getWarnings(response.Varovani)
+		warnings: getWarnings(response.Varovani),
 	};
 
 	if (duration !== undefined) {

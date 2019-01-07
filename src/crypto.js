@@ -26,7 +26,7 @@ export function generatePKP(privateKey, dicPopl, idProvoz, idPokl, poradCis, dat
  */
 export function generateBKP(pkp) {
 
-	const buffer = new Buffer(pkp, 'base64');
+	const buffer = Buffer.from(pkp, 'base64');
 
 	const hash = crypto.createHash('sha1');
 	hash.update(buffer);

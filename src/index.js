@@ -10,5 +10,5 @@ export {
 	BaseError, ValidationError, ResponseError,
 	generateBKP, generatePKP,
 	EETClient,
-	createClient
+	createClient,
 };

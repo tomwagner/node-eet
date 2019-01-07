@@ -22,7 +22,7 @@ test('generate PKP', t => {
 		'/5546/RO24',
 		'0/6460/ZQ42',
 		'2016-08-05T00:30:12+02:00',
-		'34113.00'
+		'34113.00',
 	);
 
 	t.is(result, TEST_PKP);
@@ -50,11 +50,11 @@ test('validate required', t => {
 		idProvoz: 1,
 		poradCis: '2016-0001s',
 		datTrzby: new Date(),
-		celkTrzba: 1000
+		celkTrzba: 1000,
 	}));
 
 	t.throws(() => validate.requiredItems({
-		idPokl: 1
+		idPokl: 1,
 	}));
 
 });
@@ -107,7 +107,7 @@ test('get data items', t => {
 		poradCis: '0/6460/ZQ42',
 		datTrzby: new Date('2016-08-05T00:30:12+02:00'),
 		celkTrzba: -34113.8,
-		idProvoz: '273'
+		idProvoz: '273',
 	});
 
 	const expected = {
@@ -117,7 +117,7 @@ test('get data items', t => {
 		dat_trzby: '2016-08-04T22:30:12Z',
 		celk_trzba: '-34113.80',
 		id_provoz: '273',
-		rezim: 0
+		rezim: 0,
 	};
 
 	t.deepEqual(result.attributes, expected);
@@ -134,13 +134,13 @@ test('do request', async t => {
 		poradCis: '0/6460/ZQ42',
 		datTrzby: new Date('2016-08-05T00:30:12+02:00'),
 		celkTrzba: 34113.00,
-		idProvoz: '273'
+		idProvoz: '273',
 	};
 
 	const options = {
 		playground: true,
 		privateKey: PRIVATE_KEY,
-		certificate: CERTIFICATE
+		certificate: CERTIFICATE,
 	};
 
 	const response = await createClient(options).then(client => client.request(data));

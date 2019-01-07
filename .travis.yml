@@ -1,16 +1,22 @@
 # Travis CI config file
 # https://docs.travis-ci.com/
 
-dist: trusty
-sudo: false
+dist: xenial
 
 language: node_js
 
 node_js:
-  - "7"
+  - "11.*"
+  - "10.*"
+  - "9.*"
+  - "8.*"
+  - "7.*"
 
 cache:
   yarn: true
 
+install:
+  - yarn
+
 script:
-  - npm run test
+  - yarn test

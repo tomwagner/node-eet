@@ -1,13 +1,7 @@
 {
 	"plugins": [
-		"transform-es2015-modules-commonjs",
-		"transform-export-extensions"
-	],
-	"env": {
-		"test": {
-			"presets": [
-				"@ava/transform-test-files"
-			]
-		}
-	}
+		"@babel/plugin-transform-modules-commonjs",
+		"@babel/plugin-syntax-object-rest-spread",
+		"@babel/plugin-proposal-class-properties"
+	]
 }

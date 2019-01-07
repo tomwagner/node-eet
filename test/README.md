@@ -5,7 +5,7 @@ We are using [AVA: Futuristic JavaScript test runner](https://github.com/avajs/a
 You can run tests with:
 
 ```bash
-npm run test
+yarn test
 ```
 
 It is a shortcut for `cross-env NODE_ENV=test ava test/tests.js --verbose` which runs all the tests defined in tests.js file.

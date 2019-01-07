@@ -15,7 +15,7 @@ export function requiredItems(items) {
 		'idProvoz',
 		'poradCis',
 		'datTrzby',
-		'celkTrzba'
+		'celkTrzba',
 	].forEach(item => {
 		if (!isDefinedAndNotNull(items[item])) {
 			throw new ValidationError(`'${item}' is required.`)

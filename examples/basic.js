@@ -14,7 +14,7 @@ const options = {
 	playground: true,
 	timeout: 2000,
 	measureResponseTime: true,
-	offline: true
+	offline: true,
 };
 
 const items = {
@@ -39,7 +39,7 @@ const items = {
 	dan1: 21.00,
 	cerpZuct: 121.00,
 
-	rezim: 0
+	rezim: 0,
 
 };
 
