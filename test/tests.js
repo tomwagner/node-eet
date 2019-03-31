@@ -5,109 +5,101 @@ import test from 'ava';
 import { createClient } from '../src/index';
 import * as crypto from '../src/crypto';
 import * as utils from '../src/utils';
-import * as validate from '../src/validate';
-import * as helpers from '../src/helpers';
+import * as schema from '../src/schema';
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
 const CERTIFICATE = fs.readFileSync('./test/keys/certificate.pem');
 const TEST_PKP = 'JvCv0lXfT74zuviJaHeO91guUfum1MKhq0NNPxW0YlBGvIIt+I4QxEC3QP6BRwEkIS14n2WN+9oQ8nhQPYwZX7L4W9Ie7CYv1ojcl/YiF4560EdB3IpRNRj3UjQlwSZ5ucSM9vWqp0UTbhJDSUk5/WjC/CEiSYv7OQIqa0NJ0f0+ldzGveLRSF34eu2iqAhs/yfDnENlnMDPVB5ko/zQO0vcC93k5DEWEoytTIAsKd6jKSO7eama8Qe+d0wq9vBzudkfLgCe2C1iERJuyHknhjo9KOx10h5wk99QqVGX8tthpAmryDcX2N0ZGkzJHuzzebnYsxXFYI2tKOJLiLLoLQ==';
 
-test('generate PKP', t => {
 
-	const result = crypto.generatePKP(
-		PRIVATE_KEY,
-		'CZ1212121218',
-		'273',
-		'/5546/RO24',
-		'0/6460/ZQ42',
-		'2016-08-05T00:30:12+02:00',
-		'34113.00',
-	);
+test('generatePKP', t => {
+
+	const result = crypto.generatePKP(PRIVATE_KEY, {
+		dic_popl: 'CZ1212121218',
+		id_provoz: '273',
+		id_pokl: '/5546/RO24',
+		porad_cis: '0/6460/ZQ42',
+		dat_trzby: '2016-08-05T00:30:12+02:00',
+		celk_trzba: '34113.00',
+	});
 
 	t.is(result, TEST_PKP);
 
 });
 
-test('generate BKP', t => {
+test('generateBKP', t => {
 	t.is(crypto.generateBKP(TEST_PKP), '3F9119C1-FBF34535-D30B60F8-9859E4A6-C8C8AAFA');
 });
 
-test('format date', t => {
+test('convertDateToString', t => {
+
 	const date = new Date('2016-08-05T00:30:12+02:00');
-	t.is(utils.formatDate(date), '2016-08-04T22:30:12Z');
+
+	t.is(utils.convertDateToString(date), '2016-08-04T22:30:12Z');
+
 });
 
-test('format number', t => {
-	t.is(utils.formatNumber(12), '12.00');
+test('convertAmountToString', t => {
+	t.is(utils.convertAmountToString(1200), '12.00');
 });
 
-test('validate required', t => {
+test('parseRequest required', t => {
 
-	t.notThrows(() => validate.requiredItems({
+	t.notThrows(() => schema.parseRequest({
 		dicPopl: 'CZ1212121218',
-		idPokl: 1,
+		idPokl: '1',
 		idProvoz: 1,
 		poradCis: '2016-0001s',
 		datTrzby: new Date(),
 		celkTrzba: 1000,
 	}));
 
-	t.throws(() => validate.requiredItems({
-		idPokl: 1,
+	t.throws(() => schema.parseRequest({
+		idPokl: '1',
 	}));
 
 });
 
-test('validate vat id number', t => {
-	t.notThrows(() => validate.vatIdNumber('CZ1212121218'));
-	t.throws(() => validate.vatIdNumber(1212121218));
+test('validateVatId', t => {
+	t.truthy(utils.validateVatId('CZ1212121218'));
+	t.falsy(utils.validateVatId(1212121218));
 });
 
-test('validate idProvoz', t => {
-	t.notThrows(() => validate.idProvoz(25));
-	t.throws(() => validate.idProvoz(12345678));
+test('validateIdProvoz', t => {
+	t.truthy(utils.validateIdProvoz(25));
+	t.falsy(utils.validateIdProvoz(12345678));
 });
 
-test('validate idPokl', t => {
-	t.notThrows(() => validate.idPokl('1aZ.,:;/#-_'));
-	t.throws(() => validate.idPokl('@@@'));
+test('validateIdPokl', t => {
+	t.truthy(utils.validateIdPokl('0aA.,:;/#-_'));
+	t.falsy(utils.validateIdPokl('@@@'));
 });
 
-test('validate poradCis', t => {
-	t.notThrows(() => validate.poradCis('0aA.,:;/#-_'));
-	t.throws(() => validate.poradCis('@@@'));
+test('validatePoradCis', t => {
+	t.truthy(utils.validatePoradCis('0aA.,:;/#-_'));
+	t.falsy(utils.validatePoradCis('@@@'));
 });
 
-test('validate date', t => {
-	t.notThrows(() => validate.date(new Date()));
-	t.throws(() => validate.date(new Date('test')));
-	t.throws(() => validate.date('test'));
+test('validateAmount', t => {
+	t.truthy(utils.validateAmount(1000));
+	t.truthy(utils.validateAmount(0));
+	t.truthy(utils.validateAmount(-1000));
+	t.falsy(utils.validateAmount(78.8));
+	t.falsy(utils.validateAmount('1000.00'));
+	t.falsy(utils.validateAmount('1000,00'));
+	t.falsy(utils.validateAmount('test'));
 });
 
-test('validate rezim', t => {
-	t.notThrows(() => validate.rezim(1));
-	t.notThrows(() => validate.rezim('1'));
-	t.throws(() => validate.rezim('test'));
-});
+test('parseRequest', t => {
 
-test('validate financial number', t => {
-	t.notThrows(() => validate.financialNumber(1000));
-	t.notThrows(() => validate.financialNumber(0));
-	t.notThrows(() => validate.financialNumber(-1000));
-	t.throws(() => validate.financialNumber('1000,00'));
-	t.throws(() => validate.financialNumber('test'));
-});
-
-test('get data items', t => {
-
-	const result = helpers.getDataItems({
+	const result = schema.parseRequest({
 		dicPopl: 'CZ1212121218',
 		idPokl: '/5546/RO24',
 		poradCis: '0/6460/ZQ42',
 		datTrzby: new Date('2016-08-05T00:30:12+02:00'),
-		celkTrzba: -34113.8,
-		idProvoz: '273',
+		celkTrzba: -3411380,
+		idProvoz: 273,
 	});
 
 	const expected = {
@@ -116,11 +108,11 @@ test('get data items', t => {
 		porad_cis: '0/6460/ZQ42',
 		dat_trzby: '2016-08-04T22:30:12Z',
 		celk_trzba: '-34113.80',
-		id_provoz: '273',
+		id_provoz: 273,
 		rezim: 0,
 	};
 
-	t.deepEqual(result.attributes, expected);
+	t.deepEqual(result.data, expected);
 
 });
 
@@ -133,8 +125,8 @@ test('do request', async t => {
 		idPokl: '/5546/RO24',
 		poradCis: '0/6460/ZQ42',
 		datTrzby: new Date('2016-08-05T00:30:12+02:00'),
-		celkTrzba: 34113.00,
-		idProvoz: '273',
+		celkTrzba: 3411300,
+		idProvoz: 273,
 	};
 
 	const options = {
@@ -146,6 +138,8 @@ test('do request', async t => {
 	const response = await createClient(options).then(client => client.request(data));
 
 	t.truthy(response.fik.length === 39);
+
+	t.log('fik', response.fik);
 
 	// TODO test offline
 

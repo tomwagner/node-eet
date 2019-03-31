@@ -12,31 +12,20 @@ const TRANSFORM_ALGORITHMS = [
 
 const DIGEST_ALGORITHM = 'http://www.w3.org/2001/04/xmlenc#sha256';
 
+const insertStr = (src, dst, pos) => [dst.slice(0, pos), src, dst.slice(pos)].join('');
 
-function insertStr(src, dst, pos) {
-	return [dst.slice(0, pos), src, dst.slice(pos)].join('');
-}
-
-function removeCertHeaderAndFooter(publicP12PEM) {
-
-	return publicP12PEM.toString()
+const removeCertHeaderAndFooter = publicP12PEM =>
+	publicP12PEM
+		.toString()
 		.replace('-----BEGIN CERTIFICATE-----', '')
 		.replace('-----END CERTIFICATE-----', '')
 		.replace(/(\r\n|\n|\r)/gm, '');
 
-}
+const getTokenXml = id => (
+	`<wsse:SecurityTokenReference><wsse:Reference URI="#${id}" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/></wsse:SecurityTokenReference>`
+);
 
-function getTokenXml(id) {
-
-	return (
-		`<wsse:SecurityTokenReference><wsse:Reference URI="#${id}" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/></wsse:SecurityTokenReference>`
-	);
-
-}
-
-function getSecurityXml(id, binaryToken) {
-
-	return (`<wsse:Security
+const getSecurityXml = (id, binaryToken) => (`<wsse:Security
 	xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
 	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
 	soap:mustUnderstand="1"
@@ -49,7 +38,6 @@ function getSecurityXml(id, binaryToken) {
 	</wsse:BinarySecurityToken>
 </wsse:Security>`);
 
-}
 
 export default class WSSecurityCert {
 

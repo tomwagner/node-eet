@@ -19,17 +19,17 @@ const PG_WSDL_URL = 'https://pg.eet.cz:443/eet/services/EETServiceSOAP/v3/';
 export default function createClient(options) {
 
 	if (!options.privateKey || !options.certificate) {
-		throw new Error('privateKey and certificate options are required.')
+		throw new Error('privateKey and certificate options are required.');
 	}
 
 	const soapOptions = {};
 
 	if (options.playground) {
-		soapOptions.endpoint = PG_WSDL_URL
+		soapOptions.endpoint = PG_WSDL_URL;
 	}
 
 	if (options.httpClient) {
-		soapOptions.httpClient = options.httpClient
+		soapOptions.httpClient = options.httpClient;
 	}
 
 	options.timeout = options.timeout || 2000;
@@ -40,7 +40,9 @@ export default function createClient(options) {
 
 		soap.createClient(WSDL, soapOptions, (err, client) => {
 
-			if (err) return reject(err);
+			if (err) {
+				return reject(err);
+			}
 
 			client.setSecurity(new WSSecurityCert(options.privateKey, options.certificate));
 

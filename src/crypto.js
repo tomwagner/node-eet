@@ -7,9 +7,9 @@ import crypto from 'crypto';
  * Generates PKP (podpisovy kod poplatnika)
  * @see http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf (section 4.1)
  */
-export function generatePKP(privateKey, dicPopl, idProvoz, idPokl, poradCis, datTrzby, celkTrzba) {
+export function generatePKP(privateKey, { dic_popl, id_provoz, id_pokl, porad_cis, dat_trzby, celk_trzba }) {
 
-	const options = [dicPopl, idProvoz, idPokl, poradCis, datTrzby, celkTrzba];
+	const options = [dic_popl, id_provoz, id_pokl, porad_cis, dat_trzby, celk_trzba];
 	const strToHash = options.join('|');
 
 	const sign = crypto.createSign('RSA-SHA256');

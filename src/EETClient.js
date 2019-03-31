@@ -1,8 +1,9 @@
 "use strict";
 
-import { getBodyItems, getFooterItems, getResponseItems } from './helpers';
-import { httpResponse as validateHttpResponse } from './validate';
+import { getBodyItems, getResponseItems } from './helpers';
+import { validateHttpResponse } from './utils';
 import { ValidationError, ResponseError } from './errors';
+import { generatePKPAndBKP } from './crypto';
 
 
 export default class EETClient {
@@ -14,48 +15,56 @@ export default class EETClient {
 
 	/**
 	 * Sends request to EET to get FIK
-	 * @param items
+	 * Mutates request object (adds default values).
+	 * @param request {object}
 	 * @return {Promise.<object>}
 	 * @throws ValidationError
 	 * @throws ResponseError
 	 */
-	request(items) {
+	request(request) {
 
 		return new Promise((resolve, reject) => {
 
-			const body = getBodyItems(this.options.privateKey, items);
+			// add default values to the request object - mutates request object! and validates simultaneously
+			const body = getBodyItems(this.options.privateKey, request);
 
-			this.client.OdeslaniTrzby(body, (err, response) => {
+			this.client.OdeslaniTrzby(
+				body,
+				(err, response) => {
 
-				if (err) return reject(err);
+					if (err) {
+						return reject(err);
+					}
 
-				const elapsedTime = this.options.measureResponseTime ? this.client.lastElapsedTime : undefined;
+					const elapsedTime = this.options.measureResponseTime ? this.client.lastElapsedTime : undefined;
 
-				try {
-					validateHttpResponse(response);
-					resolve(getResponseItems(response, elapsedTime));
-				} catch (e) {
-					reject(e)
-				}
+					try {
 
-			}, { timeout: this.options.timeout, time: this.options.measureResponseTime });
+						validateHttpResponse(response);
 
-		})
-			.catch(err => {
+						return resolve(getResponseItems(response, elapsedTime));
 
-				if (err instanceof ValidationError) {
-					return Promise.reject(err);
-				}
+					} catch (err) {
 
-				if (!this.options.offline) return Promise.reject(err);
+						if (!this.options.offline) {
+							return reject(err);
+						}
 
-				const code = getFooterItems(this.options.privateKey, items);
-				const bkp = code.bkp;
-				const pkp = code.pkp;
+						return resolve({
+							...generatePKPAndBKP(this.options.privateKey, items),
+							err,
+						});
 
-				return Promise.resolve({ pkp: pkp.$value, bkp: bkp.$value, err });
+					}
 
-			});
+				},
+				{
+					timeout: this.options.timeout,
+					time: this.options.measureResponseTime,
+				},
+			);
+
+		});
 
 	}
 

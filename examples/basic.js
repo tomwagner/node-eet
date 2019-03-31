@@ -31,13 +31,13 @@ const items = {
 	poradCis: '0/6460/ZQ42',
 	datTrzby: new Date(),
 
-	// celkTrzba: 1000.00,
-	// urcenoCerpZuct: 1000.00,
+	// celkTrzba: 100000, // 1000 CZK
+	// urcenoCerpZuct: 100000, // 1000 CZK
 
-	celkTrzba: 121.00,
-	zaklDan1: 100.00,
-	dan1: 21.00,
-	cerpZuct: 121.00,
+	celkTrzba: 12100, // 121 CZK
+	zaklDan1: 10000, // 100 CZK
+	dan1: 2100, // 21 CZK
+	cerpZuct: 12100, // 121 CZK
 
 	rezim: 0,
 

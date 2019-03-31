@@ -16,6 +16,7 @@ Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz
 This is fork of [JakubMrozek/eet](https://github.com/JakubMrozek/eet) with the following **changes**:
 - **completely rewritten to allow multiple request with the same client (performance improvement)**  
 	\+ _currentDate_ and _uuid_ moved from options to **items** and renamed to **datOdesl** and **uuidZpravy** to improve consistency
+- **Breaking changes: strict types checking (numbers must be numbers, string must be strings), use integers instead of floats for amounts**
 - fixed LICENSE (to be recognized by GitHub)
 - improved README
 - added yarn.lock
@@ -48,7 +49,7 @@ const { createClient } = require('eet');
 const options = {
 	privateKey: '...',
 	certificate: '...',
-	playground: true
+	playground: true,
 };
 
 // polozky, ktere se posilaji do EET 
@@ -57,8 +58,8 @@ const items = {
 	idPokl: '/5546/RO24',
 	poradCis: '0/6460/ZQ42',
 	datTrzby: new Date(),
-	celkTrzba: 34113,
-	idProvoz: '273'
+	celkTrzba: 34113, // 341.13 CZK expressed in hundredths (haléře, aka cents)
+	idProvoz: 273,
 };
 
 // ziskani FIK (kod uctenky) pomoci async/await (Node.js 8+ / Babel)
@@ -109,15 +110,15 @@ pem.readPkcs12(file, {p12Password: password}, (err, result) => {
 
 ### createClient(options)
 
-|        name         |  type   |                                     required                                      | default |                                                      description                                                       |
-|---------------------|---------|-----------------------------------------------------------------------------------|---------|------------------------------------------------------------------------------------------------------------------------|
-| **privateKey**      | string  | **yes**                                                                           |         | private key for the certificate                                                                                        |
-| **certificate**     | string  | **yes**                                                                           |         | certificate                                                                                                            |
-| offline             | boolean | no                                                                                | false   | if true, includes PKP and BKB in response on unsuccessful request to EET                                               |
-| playground          | boolean | no                                                                                | false   | use Playground EET endpoint instead of production                                                                      |
-| timeout             | number  | no                                                                                | 2000 ms | maximal time to wait in milliseconds                                                                                   |
-| measureResponseTime | boolean | no                                                                                | false   | measure response time using node-soap's [client.lastElapsedTime](https://github.com/vpulim/node-soap#options-optional) |
-| httpClient          | object  | no                                                                                |         | see [soap options](https://github.com/vpulim/node-soap#options), just for testing                                      |
+|        name         |  type   | required | default |                                                      description                                                       |
+|---------------------|---------|----------|---------|------------------------------------------------------------------------------------------------------------------------|
+| **privateKey**      | string  | **yes**  |         | private key for the certificate                                                                                        |
+| **certificate**     | string  | **yes**  |         | certificate                                                                                                            |
+| offline             | boolean | no       | false   | if true, includes PKP and BKB in response on unsuccessful request to EET                                               |
+| playground          | boolean | no       | false   | use Playground EET endpoint instead of production                                                                      |
+| timeout             | number  | no       | 2000 ms | maximal time to wait in milliseconds                                                                                   |
+| measureResponseTime | boolean | no       | false   | measure response time using node-soap's [client.lastElapsedTime](https://github.com/vpulim/node-soap#options-optional) |
+| httpClient          | object  | no       |         | see [soap options](https://github.com/vpulim/node-soap#options), just for testing                                      |
 
 
 ### EETClient.request(items)
@@ -131,6 +132,7 @@ TODO document whole API
 
 
 ## Frequent errors
+
 
 ### Neplatny podpis SOAP zpravy (4)
 
