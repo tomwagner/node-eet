@@ -74,9 +74,10 @@ try {
 // ziskani FIK v Node.js 6+
 createClient(options)
 	.then(client => client.request(items))
-	.then(response => {
+	.then((({ request, response }) => {
+		// request contains complete data object sent to EET
 		// response.fik
-	});
+	}));
 ```
 
 

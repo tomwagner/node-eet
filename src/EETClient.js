@@ -3,7 +3,8 @@
 import { getBodyItems, getResponseItems } from './helpers';
 import { validateHttpResponse } from './utils';
 import { ValidationError, ResponseError } from './errors';
-import { generatePKPAndBKP } from './crypto';
+import { parseRequest } from './schema';
+import { generateBKP, generatePKP } from './crypto';
 
 
 export default class EETClient {
@@ -15,7 +16,6 @@ export default class EETClient {
 
 	/**
 	 * Sends request to EET to get FIK
-	 * Mutates request object (adds default values).
 	 * @param request {object}
 	 * @return {Promise.<object>}
 	 * @throws ValidationError
@@ -25,8 +25,9 @@ export default class EETClient {
 
 		return new Promise((resolve, reject) => {
 
-			// add default values to the request object - mutates request object! and validates simultaneously
-			const body = getBodyItems(this.options.privateKey, request);
+			const { header, data } = parseRequest(request);
+
+			const body = getBodyItems(this.options.privateKey, header, data);
 
 			this.client.OdeslaniTrzby(
 				body,
@@ -42,7 +43,13 @@ export default class EETClient {
 
 						validateHttpResponse(response);
 
-						return resolve(getResponseItems(response, elapsedTime));
+						return resolve({
+							request: {
+								...header,
+								...data,
+							},
+							response: getResponseItems(response, elapsedTime),
+						});
 
 					} catch (err) {
 
@@ -50,9 +57,19 @@ export default class EETClient {
 							return reject(err);
 						}
 
+						const pkp = generatePKP(this.options.privateKey, data);
+						const bkp = generateBKP(pkp);
+
 						return resolve({
-							...generatePKPAndBKP(this.options.privateKey, items),
-							err,
+							request: {
+								...header,
+								...data,
+							},
+							response: {
+								pkp,
+								bkp,
+							},
+							error: err,
 						});
 
 					}

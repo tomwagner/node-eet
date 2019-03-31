@@ -48,7 +48,7 @@ createClient(options)
 	.then(client => {
 
 		client.request(items)
-			.then(response => {
+			.then(({ request, response }) => {
 
 				console.log(response);
 

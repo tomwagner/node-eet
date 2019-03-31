@@ -135,11 +135,11 @@ test('do request', async t => {
 		certificate: CERTIFICATE,
 	};
 
-	const response = await createClient(options).then(client => client.request(data));
+	const { response: { fik } } = await createClient(options).then(client => client.request(data));
 
-	t.truthy(response.fik.length === 39);
+	t.truthy(fik && fik.length === 39);
 
-	t.log('fik', response.fik);
+	t.log('fik', fik);
 
 	// TODO test offline
 

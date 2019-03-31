@@ -2,7 +2,6 @@
 
 import { isDefined } from './utils';
 import { generatePKP, generateBKP } from './crypto';
-import { parseRequest } from './schema';
 
 
 /**
@@ -35,12 +34,8 @@ export const getFooterItems = (privateKey, data) => {
 
 /**
  * Generates content for SOAP body
- * @return object
- * @throws ValidationError
  */
-export const getBodyItems = (privateKey, request) => {
-
-	const { header, data } = parseRequest(request);
+export const getBodyItems = (privateKey, header, data) => {
 
 	return {
 		Hlavicka: {
@@ -54,7 +49,7 @@ export const getBodyItems = (privateKey, request) => {
 
 };
 
-export const getWarnings = warnings => {
+const getWarnings = warnings => {
 
 	if (!warnings || warnings.length <= 0) {
 		return [];
