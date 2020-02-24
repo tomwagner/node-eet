@@ -76,6 +76,8 @@ export default class EETClient {
 
 				},
 				{
+					// proxy: 'http://localhost:8080',
+					// strictSSL: false,
 					timeout: this.options.timeout,
 					time: this.options.measureResponseTime,
 				},

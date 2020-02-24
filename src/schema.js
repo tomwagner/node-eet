@@ -1,6 +1,6 @@
 "use strict";
 
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import {
 	convertAmountToString,
 	convertBooleanToString,
@@ -18,7 +18,7 @@ export const SCHEMA = {
 		type: 'header',
 		name: 'uuid_zpravy',
 		required: true,
-		getDefault: () => uuid.v4(),
+		getDefault: () => uuidv4(),
 		// TODO: validate
 	},
 	datOdesl: {

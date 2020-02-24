@@ -1,7 +1,7 @@
 "use strict";
 
 import path from 'path';
-import soap from 'soap';
+const soap = require('soap');
 
 import WSSecurityCert from './WSSecurityCert';
 import EETClient from './EETClient';

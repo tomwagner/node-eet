@@ -1,7 +1,7 @@
 "use strict";
 
 const fs = require('fs');
-const { createClient } = require('../dist');
+const { createClient } = require('../src');
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
@@ -50,12 +50,12 @@ createClient(options)
 		client.request(items)
 			.then(({ request, response }) => {
 
-				console.log(response);
+				console.log('ok', response);
 
 			})
 			.catch(err => {
 
-				console.log(err);
+				console.error('error', err);
 
 			})
 

@@ -22,7 +22,8 @@ const removeCertHeaderAndFooter = publicP12PEM =>
 		.replace(/(\r\n|\n|\r)/gm, '');
 
 const getTokenXml = id => (
-	`<wsse:SecurityTokenReference><wsse:Reference URI="#${id}" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/></wsse:SecurityTokenReference>`
+	// in the new version of xml-crypto or soap xmlns:wsse must be defined here explictely otherwise it is set to ""
+	`<wsse:SecurityTokenReference xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"><wsse:Reference URI="#${id}" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/></wsse:SecurityTokenReference>`
 );
 
 const getSecurityXml = (id, binaryToken) => (`<wsse:Security
