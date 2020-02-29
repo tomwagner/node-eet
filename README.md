@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@nfctron/eet.svg)](https://www.npmjs.com/package/@nfctron/eet)
 [![build status](https://img.shields.io/travis/NFCtron/eet/master.svg)](https://travis-ci.org/NFCtron/eet)
-[![eet channel on discord](https://img.shields.io/badge/discord-join%20chat-61dafb.svg)](https://discord.gg/bg3yazg)
+[![eet channel on discord](https://img.shields.io/badge/discord-join%20chat-61dafb.svg?logo=discord&logoColor=white)](https://discord.gg/bg3yazg)
 
 
 Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1_EN.pdf) in the Czech Republic) ([Elektronickou evidenci tržeb](http://www.etrzby.cz/cs/technicka-specifikace)).
