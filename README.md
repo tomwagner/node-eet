@@ -1,7 +1,7 @@
 # eet
 
 [![npm](https://img.shields.io/npm/v/@nfctron/eet.svg)](https://www.npmjs.com/package/@nfctron/eet)
-[![build status](https://img.shields.io/travis/NFCtron/eet/master.svg)](https://travis-ci.org/NFCtron/eet)
+[![build status](https://img.shields.io/github/workflow/status/NFCtron/eet/CI?logo=github)](https://github.com/NFCtron/eet/actions?query=workflow%3ACI)
 [![eet channel on discord](https://img.shields.io/badge/discord-join%20chat-61dafb.svg?logo=discord&logoColor=white)](https://discord.gg/bg3yazg)
 
 

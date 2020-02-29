@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        node: [8.x, 10.x, 12.x, 13.x]
+        node: [10.x, 12.x, 13.x]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -19,6 +19,7 @@ jobs:
       # note: Yarn in pre-installed in the VM image
       # (see https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md)
       - name: Install dependencies
+        # optionally use yarn --ignore-engines
         run: yarn
       - name: Run tests
         run: yarn test
