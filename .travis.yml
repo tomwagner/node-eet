@@ -6,11 +6,10 @@ dist: xenial
 language: node_js
 
 node_js:
-  - "11.*"
+  - "13.*"
+  - "12.*"
   - "10.*"
-  - "9.*"
   - "8.*"
-  - "7.*"
 
 cache:
   yarn: true
