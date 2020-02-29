@@ -6,6 +6,9 @@
 
 Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1_EN.pdf) in the Czech Republic) ([Elektronickou evidenci tržeb](http://www.etrzby.cz/cs/technicka-specifikace)).
 
+⚠️ **This is a rewrite branch. Work in progress.**
+🎯 **Goal: remove dependencies on soap and xml-crypto (i.e. make a fast, zero-dependencies implementation)**
+
 
 ## Content
 
