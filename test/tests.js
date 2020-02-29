@@ -8,9 +8,9 @@ import * as utils from '../src/utils';
 import * as schema from '../src/schema';
 
 
-const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
-const CERTIFICATE = fs.readFileSync('./test/keys/certificate.pem');
-const TEST_PKP = 'JvCv0lXfT74zuviJaHeO91guUfum1MKhq0NNPxW0YlBGvIIt+I4QxEC3QP6BRwEkIS14n2WN+9oQ8nhQPYwZX7L4W9Ie7CYv1ojcl/YiF4560EdB3IpRNRj3UjQlwSZ5ucSM9vWqp0UTbhJDSUk5/WjC/CEiSYv7OQIqa0NJ0f0+ldzGveLRSF34eu2iqAhs/yfDnENlnMDPVB5ko/zQO0vcC93k5DEWEoytTIAsKd6jKSO7eama8Qe+d0wq9vBzudkfLgCe2C1iERJuyHknhjo9KOx10h5wk99QqVGX8tthpAmryDcX2N0ZGkzJHuzzebnYsxXFYI2tKOJLiLLoLQ==';
+const PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/private.pem');
+const CERTIFICATE = fs.readFileSync('./test/certificate-CZ1212121218/certificate.pem');
+const TEST_PKP = 'QEIvS/3ETSJuAK7agvrVlQUN1Oi4DoPrNBmC+sQueNknhsr48RGElLpzTnxH/KUdfde91xFOcRbgyiXapK4beRTRaZ/CQ1qug4Y7JbnhB60WUH61E2NlTzxTfmidcNIlQohrVDC5awyrZQj2T1cG+3gGPHQ/oveM4ozt5gLaHFDwl421eLQctxeQfXK4dDrZDANX6AVB8Q92X89o9YouISCjIrYk7ZnLhDe+cXxlB0GGJq5i1P2uALOgQyZBU5mBWLolL2n06C73Sja7HjCt9E8s6bV9y1cJZcjXo1tWOEUqfU8ir/wYstO11v/JmiRADGwGoCuCszktUmf4K3PaDg==';
 
 
 test('generatePKP', t => {
@@ -29,7 +29,7 @@ test('generatePKP', t => {
 });
 
 test('generateBKP', t => {
-	t.is(crypto.generateBKP(TEST_PKP), '3F9119C1-FBF34535-D30B60F8-9859E4A6-C8C8AAFA');
+	t.is(crypto.generateBKP(TEST_PKP), 'B8F8392B-F73C8643-0BA0C171-142CAA01-4C7A4078');
 });
 
 test('convertDateToString', t => {

@@ -4,8 +4,8 @@ const fs = require('fs');
 const { createClient } = require('../src');
 
 
-const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
-const CERTIFICATE = fs.readFileSync('./test/keys/certificate.pem');
+const PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/private.pem');
+const CERTIFICATE = fs.readFileSync('./test/certificate-CZ1212121218/certificate.pem');
 
 
 const options = {
