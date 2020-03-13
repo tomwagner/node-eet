@@ -47,9 +47,7 @@
   },
   "dependencies": {
     "node-fetch": "^2.6.0",
-    "soap": "^0.31.0",
-    "uuid": "^7.0.1",
-    "xml-crypto": "^1.4.0"
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
     "@ava/babel": "^1.0.1",
