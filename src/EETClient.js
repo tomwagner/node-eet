@@ -32,11 +32,8 @@ class EETClient {
 				.then(response => response.text())
 				.then(response => parseResponseXML(response, this.options.measureResponseTime ? this.lastElapsedTime : undefined))
 				.then(response => {
-					console.log(response);
 
 					try {
-
-						//validateHttpResponse(response);
 
 						return resolve({
 							request: {

@@ -10,7 +10,7 @@ import { generatePKP, generateBKP, hashSha256Base64, signSha256Base64, getPublic
  * Generates data for XML element Data
  */
 export const serializeData = (data) =>
-	`<Data celk_trzba="${data.celk_trzba}" dan1="${data.dan1}" dat_trzby="${data.dat_trzby}" dic_popl="${data.dic_popl}" id_pokl="${data.id_pokl}" id_provoz="${data.id_provoz}" porad_cis="${data.porad_cis}" rezim="${data.rezim}" zakl_dan1="${data.zakl_dan1}"></Data>`;
+	`<Data celk_trzba="${data.celk_trzba}" dat_trzby="${data.dat_trzby}" dic_popl="${data.dic_popl}" id_pokl="${data.id_pokl}" id_provoz="${data.id_provoz}" porad_cis="${data.porad_cis}" rezim="${data.rezim}"></Data>`;
 
 /**
  * Generates data for XML element KontrolniKody
@@ -90,29 +90,53 @@ const getWarnings = warnings => {
  */
 export const parseResponseXML = (xml, duration) => {
 
-	var options = {
-		attributeNamePrefix: "_",
-		ignoreAttributes: false,
-		ignoreNameSpace: true,
-	};
-	const parsed = parser.parse(xml, options);
+	return new Promise((resolve, reject) => {
+		var options = {
+			attributeNamePrefix: "_",
+			ignoreAttributes: false,
+			ignoreNameSpace: true,
+		};
 
-	const header = parsed['Envelope']['Body']['Odpoved']['Hlavicka'];
-	const body = parsed['Envelope']['Body']['Odpoved']['Potvrzeni'];
+		if (parser.validate(xml) !== true) {
+			reject(parser.validate(xml));
+		}
 
-	const data = {
-		uuid: header._uuid_zpravy,
-		bkp: header._bkp,
-		date: new Date(header._dat_prij),
-		test: body._test === 'true',
-		fik: body._fik,
-		warnings: '', // TODO: get warinings
-	};
+		const parsed = parser.parse(xml, options);
 
-	if (isDefined(duration)) {
-		data.duration = duration;
-	}
+		try {
 
-	return data;
+			const header = parsed['Envelope']['Body']['Odpoved']['Hlavicka'];
+			const body = parsed['Envelope']['Body']['Odpoved']['Potvrzeni'];
+
+			const data = {
+				uuid: header['_uuid_zpravy'],
+				bkp: header['_bkp'],
+				date: new Date(header['_dat_prij']),
+				test: body['_test'] === 'true',
+				fik: body['_fik'],
+				warnings: '', // TODO: get warinings
+			};
+
+			if (isDefined(duration)) {
+				data.duration = duration;
+			}
+
+			resolve(data);
+
+		} catch (e) {
+			try {
+
+				// Try to parse error message
+				reject(parsed['Envelope']['Body']['Odpoved']['Chyba']);
+
+			} catch (e) {
+
+				throw e;
+
+			}
+		}
+
+	});
+
 };
 
