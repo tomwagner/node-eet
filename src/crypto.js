@@ -48,7 +48,7 @@ export const hashSha256Base64 = data => {
 };
 
 /**
- * Parse PKCSC#1 RSA private key file file and extracts the private key
+ * Parse PKCSC#1 RSA private key and extracts the private key
  * @returns {string}
  */
 export const getPublicKey = certificate => {

@@ -7,6 +7,8 @@ import { generateBKP, generatePKP } from './crypto';
 import fetch from 'node-fetch';
 
 
+const SOAP_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
+
 class EETClient {
 
 	constructor(options) {
@@ -22,54 +24,45 @@ class EETClient {
 	 */
 	request(request) {
 
-		return new Promise((resolve, reject) => {
+		const { header, data } = parseRequest(request);
+		const message = serializeSoapEnvelope(this.options.privateKey, this.options.certificate, header, data);
 
-			const { header, data } = parseRequest(request);
-			const message = serializeSoapEnvelope(this.options.privateKey, this.options.certificate, header, data);
+		return fetch(SOAP_URL, { method: 'POST', body: message })
+			.then(response => response.text())
+			.then(response => parseResponseXML(response, this.options.measureResponseTime ? this.lastElapsedTime : undefined))
+			.then(response => {
 
-			fetch('https://pg.eet.cz/eet/services/EETServiceSOAP/v3/', { method: 'POST', body: message })
-				.then(response => response.text())
-				.then(response => parseResponseXML(response, this.options.measureResponseTime ? this.lastElapsedTime : undefined))
-				.then(response => {
+				return {
+					request: {
+						...header,
+						...data,
+					},
+					response: response,
+				};
+			})
+			.catch(error => {
+				if (!this.options.offline) {
+					// Do not use offline regime
+					throw error;
+				}
 
-					try {
+				// Use generated PKP instead of FIK
+				const pkp = generatePKP(this.options.privateKey, data);
+				const bkp = generateBKP(pkp);
 
-						return resolve({
-							request: {
-								...header,
-								...data,
-							},
-							response: response,
-						});
-
-					} catch (err) {
-
-						if (!this.options.offline) {
-							return reject(err);
-						}
-
-						const pkp = generatePKP(this.options.privateKey, data);
-						const bkp = generateBKP(pkp);
-
-						return resolve({
-							request: {
-								...header,
-								...data,
-							},
-							response: {
-								pkp,
-								bkp,
-							},
-							error: err,
-						});
-
-					}
-				}).catch(err => reject(err));
-
-		});
-
+				return {
+					request: {
+						...header,
+						...data,
+					},
+					response: {
+						pkp,
+						bkp,
+					},
+					error: error,
+				};
+			});
 	}
-
 }
 
 module.exports.EETClient = EETClient;

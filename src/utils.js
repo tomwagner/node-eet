@@ -53,27 +53,3 @@ export const validateIdPokl = value => typeof value == 'string' && ID_POKL_PATTE
 export const validatePoradCis = value => typeof value == 'string' && PORAD_CIS_PATTERN.test(value);
 
 export const validateAmount = value => Number.isInteger(value) && value > -10000000000 && value < 10000000000;
-
-
-export const validateHttpResponse = response => {
-	/*
-		if (!response) {
-			throw new ResponseError('Unable to parse response.');
-		}
-
-		const errorAttrs = response.Chyba && response.Chyba.attributes;
-
-		if (errorAttrs) {
-			throw new ResponseError(`${response.Chyba.$value} (${errorAttrs.kod})`);
-		}
-
-		const body = response.Potvrzeni && response.Potvrzeni.attributes;
-
-		const header = response.Hlavicka && response.Hlavicka.attributes;
-
-		if (!body || !header) {
-			throw new ResponseError('Unable to read response.');
-		}
-	*/
-// TODO: Check validity
-};

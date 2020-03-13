@@ -95,6 +95,8 @@ export const parseResponseXML = (xml, duration) => {
 			reject(parser.validate(xml));
 		}
 
+		// TODO: Validate digital signature here
+
 		const options = {
 			attributeNamePrefix: "_",
 			ignoreAttributes: false,
