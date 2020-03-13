@@ -1,7 +1,8 @@
 "use strict";
 
+const { EETClient } = require('../dist/EETClient');
+
 const fs = require('fs');
-const { createClient } = require('../dist');
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/private.pem');
@@ -43,20 +44,15 @@ const items = {
 
 };
 
+const client = new EETClient(options);
+client.request(items)
+	.then(({ request, response }) => {
 
-createClient(options)
-	.then(client => {
+		console.log('ok', response);
 
-		client.request(items)
-			.then(({ request, response }) => {
+	})
+	.catch(err => {
 
-				console.log('ok', response);
-
-			})
-			.catch(err => {
-
-				console.error('error', err);
-
-			})
+		console.error('error', err);
 
 	});
