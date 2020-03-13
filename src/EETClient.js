@@ -1,7 +1,6 @@
 "use strict";
 
-import { getResponseItems, parseResponseXML, serializeSoapEnvelope } from './helpers';
-import { validateHttpResponse } from './utils';
+import { parseResponseXML, serializeSoapEnvelope } from './helpers';
 import { ValidationError, ResponseError } from './errors';
 import { parseRequest } from './schema';
 import { generateBKP, generatePKP } from './crypto';

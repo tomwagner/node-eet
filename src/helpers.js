@@ -1,6 +1,5 @@
 "use strict";
 
-import xml2js from 'xml2js';
 import parser from 'fast-xml-parser';
 import { isDefined } from './utils';
 import { generatePKP, generateBKP, hashSha256Base64, signSha256Base64, getPublicKey } from './crypto';
@@ -86,21 +85,21 @@ const getWarnings = warnings => {
 
 /**
  * Parse XML response
- * @returns {{date: Date, test: boolean, bkp: *, warnings: string, fik: *, uuid: *}}
+ * @returns {Promise}
  */
 export const parseResponseXML = (xml, duration) => {
 
 	return new Promise((resolve, reject) => {
-		var options = {
-			attributeNamePrefix: "_",
-			ignoreAttributes: false,
-			ignoreNameSpace: true,
-		};
 
 		if (parser.validate(xml) !== true) {
 			reject(parser.validate(xml));
 		}
 
+		const options = {
+			attributeNamePrefix: "_",
+			ignoreAttributes: false,
+			ignoreNameSpace: true,
+		};
 		const parsed = parser.parse(xml, options);
 
 		try {
@@ -114,24 +113,24 @@ export const parseResponseXML = (xml, duration) => {
 				date: new Date(header['_dat_prij']),
 				test: body['_test'] === 'true',
 				fik: body['_fik'],
-				warnings: '', // TODO: get warinings
 			};
 
 			if (isDefined(duration)) {
 				data.duration = duration;
 			}
 
-			resolve(data);
+			return resolve(data);
 
 		} catch (e) {
 			try {
 
-				// Try to parse error message
-				reject(parsed['Envelope']['Body']['Odpoved']['Chyba']);
+				// Try to parse error message from XML
+				return reject(parsed['Envelope']['Body']['Odpoved']['Chyba']);
 
 			} catch (e) {
 
-				throw e;
+				// General exception
+				return reject(e);
 
 			}
 		}
