@@ -1,10 +1,11 @@
 "use strict";
 
-import { getBodyItems, getResponseItems } from './helpers';
+import { serializeSoapBody, getResponseItems, serializeSoapEnvelope } from './helpers';
 import { validateHttpResponse } from './utils';
 import { ValidationError, ResponseError } from './errors';
 import { parseRequest } from './schema';
 import { generateBKP, generatePKP } from './crypto';
+import fetch from 'node-fetch';
 
 
 export default class EETClient {
@@ -26,10 +27,19 @@ export default class EETClient {
 		return new Promise((resolve, reject) => {
 
 			const { header, data } = parseRequest(request);
+			console.log(header);
+			console.log(data);
+			console.log(this.options);
 
-			const body = getBodyItems(this.options.privateKey, header, data);
+			const message = serializeSoapEnvelope(this.options.privateKey, this.options.certificate, header, data);
+			console.log(message);
 
-			this.client.OdeslaniTrzby(
+			const bodyBuffer = Buffer.from(message, 'utf8');
+			fetch('https://pg.eet.cz/eet/services/EETServiceSOAP/v3/', {method: 'POST', body: message})
+				.then(resp => resp.text())
+				.then(txt => console.log(txt));
+
+			/*this.client.OdeslaniTrzby(
 				body,
 				(err, response) => {
 
@@ -81,7 +91,7 @@ export default class EETClient {
 					timeout: this.options.timeout,
 					time: this.options.measureResponseTime,
 				},
-			);
+			);*/
 
 		});
 

@@ -1,7 +1,7 @@
 "use strict";
 
 const fs = require('fs');
-const { createClient } = require('../src');
+const { createClient } = require('../dist');
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/private.pem');
