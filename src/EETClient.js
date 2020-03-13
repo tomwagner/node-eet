@@ -7,7 +7,8 @@ import { generateBKP, generatePKP } from './crypto';
 import fetch from 'node-fetch';
 
 
-const SOAP_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
+const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
+const SOAP_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
 
 class EETClient {
 
@@ -26,6 +27,8 @@ class EETClient {
 
 		const { header, data } = parseRequest(request);
 		const message = serializeSoapEnvelope(this.options.privateKey, this.options.certificate, header, data);
+
+		const url = this.options.playground ? PLAYGROUND_URL : SOAP_URL;
 
 		return fetch(SOAP_URL, { method: 'POST', body: message })
 			.then(response => response.text())

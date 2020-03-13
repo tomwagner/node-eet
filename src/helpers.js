@@ -121,6 +121,10 @@ export const parseResponseXML = (xml, duration) => {
 				data.duration = duration;
 			}
 
+			if (isDefined(parsed['Envelope']['Body']['Odpoved']['Varovani'])) {
+				data.warings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
+			}
+
 			return resolve(data);
 
 		} catch (e) {
