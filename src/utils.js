@@ -56,23 +56,24 @@ export const validateAmount = value => Number.isInteger(value) && value > -10000
 
 
 export const validateHttpResponse = response => {
+	/*
+		if (!response) {
+			throw new ResponseError('Unable to parse response.');
+		}
 
-	if (!response) {
-		throw new ResponseError('Unable to parse response.');
-	}
+		const errorAttrs = response.Chyba && response.Chyba.attributes;
 
-	const errorAttrs = response.Chyba && response.Chyba.attributes;
+		if (errorAttrs) {
+			throw new ResponseError(`${response.Chyba.$value} (${errorAttrs.kod})`);
+		}
 
-	if (errorAttrs) {
-		throw new ResponseError(`${response.Chyba.$value} (${errorAttrs.kod})`);
-	}
+		const body = response.Potvrzeni && response.Potvrzeni.attributes;
 
-	const body = response.Potvrzeni && response.Potvrzeni.attributes;
+		const header = response.Hlavicka && response.Hlavicka.attributes;
 
-	const header = response.Hlavicka && response.Hlavicka.attributes;
-
-	if (!body || !header) {
-		throw new ResponseError('Unable to read response.');
-	}
-
+		if (!body || !header) {
+			throw new ResponseError('Unable to read response.');
+		}
+	*/
+// TODO: Check validity
 };

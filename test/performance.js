@@ -1,8 +1,7 @@
 "use strict";
 
-const http = require('http');
+const { EETClient } = require('../src/EETClient');
 const fs = require('fs');
-const createClient = require('./../dist/eet').createClient;
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/keys/private.pem');
@@ -15,7 +14,7 @@ const options = {
 	playground: true,
 	timeout: 2000,
 	measureResponseTime: true,
-	offline: true
+	offline: true,
 };
 
 const items = {
@@ -40,63 +39,58 @@ const items = {
 	dan1: 21.00,
 	cerpZuct: 121.00,
 
-	rezim: 0
+	rezim: 0,
 
 };
 
 const TEST_CASES = 5;
+const start = process.hrtime();
+const timing = [];
+const test = [];
 
-createClient(options)
-	.then(client => {
+const client = new EETClient(options);
 
-		const start = process.hrtime();
-		const timing = [];
+for (let i = 0; i < TEST_CASES; i++) {
 
-		const test = [];
+	const time = process.hrtime();
 
-		for (let i = 0; i < TEST_CASES; i++) {
+	test.push(
+		client.request(items)
+			.then(response => {
 
-			const time = process.hrtime();
+				const diff = process.hrtime(time);
 
-			test.push(
-				client.request(items)
-					.then(response => {
-
-						const diff = process.hrtime(time);
-
-						const elapsedMilliseconds = (diff[0] * 1000) + (diff[1] / 1000 / 1000);
-
-						const processTime = Math.round(elapsedMilliseconds * 100) / 100 - response.duration;
-
-						timing.push(processTime);
-
-						//console.log('Processed in', elapsedMilliseconds, response);
-
-					})
-					.catch(err => {
-
-						console.log(err);
-
-					})
-			);
-
-		}
-
-		Promise.all(test)
-			.then(() => {
-
-				const diff = process.hrtime(start);
 				const elapsedMilliseconds = (diff[0] * 1000) + (diff[1] / 1000 / 1000);
 
-				const totalProcessTime = timing.reduce((sum, value) => (sum + value), 0);
-				const averageProcessTime =  totalProcessTime / timing.length;
+				const processTime = Math.round(elapsedMilliseconds * 100) / 100 - response.duration;
 
-				console.log('total tests:', timing.length);
-				timing.forEach((t, i) => console.log(`  ${i + 1}. - ${t.toFixed(2)} ms`));
-				console.log('total process time', totalProcessTime.toFixed(2) + ' ms');
-				console.log('average process time', averageProcessTime.toFixed(2) + ' ms');
-				console.log('time to complete:', elapsedMilliseconds.toFixed(2));
+				timing.push(processTime);
 
-			});
+				//console.log('Processed in', elapsedMilliseconds, response);
+
+			})
+			.catch(err => {
+
+				console.log(err);
+
+			}),
+	);
+
+}
+
+Promise.all(test)
+	.then(() => {
+
+		const diff = process.hrtime(start);
+		const elapsedMilliseconds = (diff[0] * 1000) + (diff[1] / 1000 / 1000);
+
+		const totalProcessTime = timing.reduce((sum, value) => (sum + value), 0);
+		const averageProcessTime = totalProcessTime / timing.length;
+
+		console.log('total tests:', timing.length);
+		timing.forEach((t, i) => console.log(`  ${i + 1}. - ${t.toFixed(2)} ms`));
+		console.log('total process time', totalProcessTime.toFixed(2) + ' ms');
+		console.log('average process time', averageProcessTime.toFixed(2) + ' ms');
+		console.log('time to complete:', elapsedMilliseconds.toFixed(2));
 
 	});

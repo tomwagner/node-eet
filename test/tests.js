@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import test from 'ava';
-import { createClient } from '../src/index';
+const { EETClient } = require('../src/EETClient');
 import * as crypto from '../src/crypto';
 import * as utils from '../src/utils';
 import * as schema from '../src/schema';
@@ -29,7 +29,7 @@ test('generatePKP', t => {
 });
 
 test('generateBKP', t => {
-	t.is(crypto.generateBKP(TEST_PKP), 'B8F8392B-F73C8643-0BA0C171-142CAA01-4C7A4078');
+	t.is(crypto.generateBKP(TEST_PKP), 'b8f8392b-f73c8643-0ba0c171-142caa01-4c7a4078');
 });
 
 test('convertDateToString', t => {
@@ -135,7 +135,7 @@ test('do request', async t => {
 		certificate: CERTIFICATE,
 	};
 
-	const { response: { fik } } = await createClient(options).then(client => client.request(data));
+	const { response: { fik } } = await new EETClient(options).request(data);
 
 	t.truthy(fik && fik.length === 39);
 

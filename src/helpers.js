@@ -1,5 +1,7 @@
 "use strict";
 
+import xml2js from 'xml2js';
+import parser from 'fast-xml-parser';
 import { isDefined } from './utils';
 import { generatePKP, generateBKP, hashSha256Base64, signSha256Base64, getPublicKey } from './crypto';
 
@@ -83,21 +85,28 @@ const getWarnings = warnings => {
 };
 
 /**
- * Processes success response from server
+ * Parse XML response
+ * @returns {{date: Date, test: boolean, bkp: *, warnings: string, fik: *, uuid: *}}
  */
-export const getResponseItems = (response, duration) => {
+export const parseResponseXML = (xml, duration) => {
 
-	const header = response.Hlavicka.attributes;
+	var options = {
+		attributeNamePrefix: "_",
+		ignoreAttributes: false,
+		ignoreNameSpace: true,
+	};
+	const parsed = parser.parse(xml, options);
 
-	const body = response.Potvrzeni.attributes;
+	const header = parsed['Envelope']['Body']['Odpoved']['Hlavicka'];
+	const body = parsed['Envelope']['Body']['Odpoved']['Potvrzeni'];
 
 	const data = {
-		uuid: header.uuid_zpravy,
-		bkp: header.bkp,
-		date: new Date(header.dat_prij),
-		test: body.test === 'true',
-		fik: body.fik,
-		warnings: getWarnings(response.Varovani),
+		uuid: header._uuid_zpravy,
+		bkp: header._bkp,
+		date: new Date(header._dat_prij),
+		test: body._test === 'true',
+		fik: body._fik,
+		warnings: '', // TODO: get warinings
 	};
 
 	if (isDefined(duration)) {
@@ -105,5 +114,5 @@ export const getResponseItems = (response, duration) => {
 	}
 
 	return data;
-
 };
+

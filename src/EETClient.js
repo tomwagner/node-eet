@@ -1,6 +1,6 @@
 "use strict";
 
-import { getResponseItems, serializeSoapEnvelope } from './helpers';
+import { getResponseItems, parseResponseXML, serializeSoapEnvelope } from './helpers';
 import { validateHttpResponse } from './utils';
 import { ValidationError, ResponseError } from './errors';
 import { parseRequest } from './schema';
@@ -29,20 +29,21 @@ class EETClient {
 			const message = serializeSoapEnvelope(this.options.privateKey, this.options.certificate, header, data);
 
 			fetch('https://pg.eet.cz/eet/services/EETServiceSOAP/v3/', { method: 'POST', body: message })
+				.then(response => response.text())
+				.then(response => parseResponseXML(response, this.options.measureResponseTime ? this.lastElapsedTime : undefined))
 				.then(response => {
-					//const elapsedTime = this.options.measureResponseTime ? this.client.lastElapsedTime : undefined;
-					const elapsedTime = undefined;
+					console.log(response);
 
 					try {
 
-						validateHttpResponse(response);
+						//validateHttpResponse(response);
 
 						return resolve({
 							request: {
 								...header,
 								...data,
 							},
-							response: getResponseItems(response, elapsedTime),
+							response: response,
 						});
 
 					} catch (err) {
