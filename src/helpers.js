@@ -8,7 +8,7 @@ import { generatePKP, generateBKP, hashSha256Base64, signSha256Base64, getPublic
  * Generates data for XML element Data
  */
 export const serializeData = (data) =>
-	`<Data celk_trzba="${data.celkTrzba}" dan1="${data.dan1}" dat_trzby="${data.datTrzby}" dic_popl="${data.dicPopl}" id_pokl="${data.idPokl}" id_provoz="${data.idProvoz}" porad_cis="${data.poradCis}" rezim="${data.rezim}" zakl_dan1="${data.zaklDan1}"></Data>`;
+	`<Data celk_trzba="${data.celk_trzba}" dan1="${data.dan1}" dat_trzby="${data.dat_trzby}" dic_popl="${data.dic_popl}" id_pokl="${data.id_pokl}" id_provoz="${data.id_provoz}" porad_cis="${data.porad_cis}" rezim="${data.rezim}" zakl_dan1="${data.zakl_dan1}"></Data>`;
 
 /**
  * Generates data for XML element KontrolniKody
@@ -27,7 +27,7 @@ export const serializeKontrolniKody = (privateKey, data) => {
 export const serializeSoapBody = (privateKey, header, data) =>
 	`<soap:Body xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" id="Body">
 <Trzba xmlns="http://fs.mfcr.cz/eet/schema/v3">
-<Hlavicka dat_odesl="${header.datOdesl}" prvni_zaslani="${header.prvniZaslani}" uuid_zpravy="${header.uuidZpravy}"></Hlavicka>
+<Hlavicka dat_odesl="${header.dat_odesl}" prvni_zaslani="${header.prvni_zaslani}" uuid_zpravy="${header.uuid_zpravy}"></Hlavicka>
 ${serializeData(data)}
 ${serializeKontrolniKody(privateKey, data)}
 </Trzba>

@@ -34,7 +34,6 @@ export default class EETClient {
 			const message = serializeSoapEnvelope(this.options.privateKey, this.options.certificate, header, data);
 			console.log(message);
 
-			const bodyBuffer = Buffer.from(message, 'utf8');
 			fetch('https://pg.eet.cz/eet/services/EETServiceSOAP/v3/', {method: 'POST', body: message})
 				.then(resp => resp.text())
 				.then(txt => console.log(txt));
