@@ -34,24 +34,19 @@ export const signSha256Base64 = (privateKey, data) => {
 
 export const hashSha1Hex = data => {
 	const hash = crypto.createHash('sha1');
-	hash.write(data);
-	// hash.end();
-	// ^^^ this causes to return constant hash no matter what passed on Node.js 10.x
-	// because it causes new data to be passed to the stream in and new hash is calculated (digest returns the last one)
-	// note: it causes the same thing even in Node.js 13.* when hash.on('readable', ...) listener is set up
+	hash.update(data);
 	return hash.digest('hex');
 };
 
 
 export const hashSha256Base64 = data => {
 	const hash = crypto.createHash('sha256');
-	hash.write(data);
-	hash.end();
+	hash.update(data);
 	return hash.digest('base64');
 };
 
 /**
- * Parse PKCSC#1 RSA private key and extracts the private key
+ * Parse PKCS#1 RSA private key and extracts the private key
  * @returns {string}
  */
 export const getPublicKey = certificate => {
