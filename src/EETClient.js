@@ -30,7 +30,7 @@ class EETClient {
 
 		const url = this.options.playground ? PLAYGROUND_URL : SOAP_URL;
 
-		return fetch(SOAP_URL, { method: 'POST', body: message })
+		return fetch(url, { method: 'POST', body: message })
 			.then(response => response.text())
 			.then(response => parseResponseXML(response, this.options.measureResponseTime ? this.lastElapsedTime : undefined))
 			.then(response => {
