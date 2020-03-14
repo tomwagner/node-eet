@@ -26,8 +26,7 @@ export const generateBKP = (pkp) => {
 
 export const signSha256Base64 = (privateKey, data) => {
 	const sign = crypto.createSign('rsa-sha256');
-	sign.write(data);
-	sign.end();
+	sign.update(data);
 	return sign.sign(privateKey, 'base64');
 };
 
