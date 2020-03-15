@@ -28,14 +28,13 @@ export const convertBooleanToString = value => value ? 'true' : 'false';
 
 /**
  * Converts amount in hundredths of CZK (haléře, same as cents) to string
- * @param amount {number}
+ * @param hundredths {number}
  * @return {string}
  */
-export const convertAmountToString = amount => {
+export const convertAmountToString = hundredths => {
 
-	const str = amount.toString(10);
-
-	return str.slice(0, -2) + '.' + str.slice(-2);
+	const crowns = 0.01 * hundredths;
+	return crowns.toFixed(2);
 
 };
 
