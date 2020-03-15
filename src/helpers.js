@@ -2,22 +2,18 @@
 
 import parser from 'fast-xml-parser';
 import { isDefined } from './utils';
-import { generatePKP, generateBKP, hashSha256Base64, signSha256Base64, getPublicKey } from './crypto';
-import { SCHEMA } from './schema';
+import { generateBKP, generatePKP, getPublicKey, hashSha256Base64, signSha256Base64 } from './crypto';
 
 
 /**
  * Generates data for XML element Data
  */
-export const serializeData = (data) => {
-	const xml = `<Data ${
+export const serializeData = (data) =>
+	`<Data ${
 		Object.entries(data)
 			.map(([key, value]) => `${key}="${value}"`)
 			.sort()
 			.join(' ')}></Data>`;
-	console.log(xml);
-	return xml;
-};
 
 /**
  * Generates data for XML element KontrolniKody
