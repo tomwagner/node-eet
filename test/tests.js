@@ -42,8 +42,20 @@ test('convertDateToString', t => {
 
 });
 
-test('convertAmountToString', t => {
+test('convertAmountToString positive', t => {
 	t.is(utils.convertAmountToString(1200), '12.00');
+});
+
+test('convertAmountToString negative', t => {
+	t.is(utils.convertAmountToString(-123456), '-1234.56');
+});
+
+test('convertAmountToString 0.12', t => {
+	t.is(utils.convertAmountToString(12), '0.12');
+});
+
+test('convertAmountToString 0.01', t => {
+	t.is(utils.convertAmountToString(1), '0.01');
 });
 
 test('parseRequest null', t => {
