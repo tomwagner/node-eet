@@ -73,16 +73,6 @@ ${body}
 				</soap:Envelope>`;
 };
 
-const getWarnings = warnings => {
-
-	if (!warnings || warnings.length <= 0) {
-		return [];
-	}
-
-	return warnings.map(warning => warning.$value);
-
-};
-
 /**
  * Parse XML response
  * @returns {Promise}
@@ -122,7 +112,7 @@ export const parseResponseXML = (xml, duration) => {
 			}
 
 			if (isDefined(parsed['Envelope']['Body']['Odpoved']['Varovani'])) {
-				data.warings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
+				data.warnings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
 			}
 
 			return resolve(data);
