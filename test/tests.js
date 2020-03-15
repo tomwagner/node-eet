@@ -167,6 +167,49 @@ test('request correct', async t => {
 
 });
 
+test('request correct all fields', async t => {
+
+	const data = {
+		prvniZaslani: true,
+		overeni: false,
+		dicPopl: 'CZ1212121218',
+		dicPoverujiciho: 'CZ1212121218',
+		idProvoz: 273,
+		idPokl: '/5546/RO24',
+		poradCis: '0/6460/ZQ42',
+		datTrzby: new Date(),
+		celkTrzba: 3411300,
+		zaklNepodlDph: 11041,
+		dan1: 2000,
+		zaklDan1: 10000,
+		dan2: 1500,
+		zaklDan2: 20000,
+		dan3: 1000,
+		zaklDan3: 30000,
+		cestSluz: 9999,
+		pouzitZboz1: 13579,
+		pouzitZboz2: 21828,
+		pouzitZboz3: 31415,
+		urcenoCerpZuct: 42,
+		cerpZuct: -1700,
+	};
+
+	const options = {
+		playground: true,
+		privateKey: PRIVATE_KEY,
+		certificate: CERTIFICATE,
+	};
+
+	const { response: { fik, warnings } } = await new EETClient(options).request(data);
+
+	t.not(fik, undefined);
+	t.is(fik.length, 39);
+	t.is(warnings, undefined);
+
+	t.log('FIK:', fik);
+
+});
+
 test('request wrong online', async t => {
 
 	const data = {

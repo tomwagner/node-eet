@@ -3,13 +3,21 @@
 import parser from 'fast-xml-parser';
 import { isDefined } from './utils';
 import { generatePKP, generateBKP, hashSha256Base64, signSha256Base64, getPublicKey } from './crypto';
+import { SCHEMA } from './schema';
 
 
 /**
  * Generates data for XML element Data
  */
-export const serializeData = (data) =>
-	`<Data celk_trzba="${data.celk_trzba}" dat_trzby="${data.dat_trzby}" dic_popl="${data.dic_popl}" id_pokl="${data.id_pokl}" id_provoz="${data.id_provoz}" porad_cis="${data.porad_cis}" rezim="${data.rezim}"></Data>`;
+export const serializeData = (data) => {
+	const xml = `<Data ${
+		Object.entries(data)
+			.map(([key, value]) => `${key}="${value}"`)
+			.sort()
+			.join(' ')}></Data>`;
+	console.log(xml);
+	return xml;
+};
 
 /**
  * Generates data for XML element KontrolniKody
