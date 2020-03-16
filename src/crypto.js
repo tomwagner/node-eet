@@ -49,12 +49,16 @@ export const hashSha256Base64 = data => {
 };
 
 /**
- * Parse PKCS#1 RSA private key and extracts the private key
+ * Remove header and footer from PKCS#1 formatted string
+ * @param fileContent {string}
  * @returns {string}
  */
-export const getPublicKey = certificate => {
-	return certificate
+export const removePkcsHeader = fileContent => {
+
+	return fileContent
 		.toString()
 		.replace(/\r?\n/g, '')
-		.replace(/-----BEGIN CERTIFICATE-----([A-Za-z0-9+/=]+)-----END CERTIFICATE-----/, '$1');
+		.replace(/-----BEGIN (CERTIFICATE|RSA PRIVATE KEY)-----/, '')
+		.replace(/-----END (CERTIFICATE|RSA PRIVATE KEY)-----/, '');
+
 };

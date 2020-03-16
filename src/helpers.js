@@ -2,7 +2,7 @@
 
 import parser from 'fast-xml-parser';
 import { isDefined } from './utils';
-import { generateBKP, generatePKP, getPublicKey, hashSha256Base64, signSha256Base64 } from './crypto';
+import { generateBKP, generatePKP, hashSha256Base64, removePkcsHeader, signSha256Base64 } from './crypto';
 
 
 /**
@@ -57,7 +57,7 @@ export const serializeSoapEnvelope = (privateKey, certificate, header, data) => 
 	const body = serializeSoapBody(privateKey, header, data);
 	const signedInfo = serializeSignedInfo(body);
 	const signature = signSha256Base64(privateKey, signedInfo);
-	const publicKey = getPublicKey(certificate);
+	const publicKey = removePkcsHeader(certificate);
 	return `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 					<soap:Header>
 						<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
