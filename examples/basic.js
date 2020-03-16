@@ -14,8 +14,6 @@ const options = {
 	certificate: CERTIFICATE,
 	playground: true,
 	timeout: 2000,
-	measureResponseTime: true,
-	offline: true,
 };
 
 const items = {

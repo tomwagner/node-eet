@@ -10,6 +10,22 @@ const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
 const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
 
 /**
+ * Generates PKP and BKP
+ * @param data {object}
+ * @param privateKey {string}
+ * @returns {{PKP: string, BKP: string}}
+ */
+export const eetGenerateSecurityCodes = (data, privateKey) => {
+
+	const pkp = generatePKP(privateKey, data);
+	return {
+		PKP: pkp,
+		BKP: generateBKP(pkp),
+	};
+
+};
+
+/**
  * Sends request to EET to get FIK
  * @param request {object}
  * @param options {object}
@@ -36,28 +52,7 @@ export const eetSend = (request, options) => {
 				},
 				response: response,
 			};
-		})
-		.catch(error => {
-			if (!options.offline) {
-				// Do not use offline regime
-				throw error;
-			}
 
-			// Use generated PKP instead of FIK
-			const pkp = generatePKP(options.privateKey, data);
-			const bkp = generateBKP(pkp);
-
-			return {
-				request: {
-					...header,
-					...data,
-				},
-				response: {
-					pkp,
-					bkp,
-				},
-				error: error,
-			};
 		});
 
 };
