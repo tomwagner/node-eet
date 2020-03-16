@@ -1,6 +1,6 @@
 "use strict";
 
-const { EETClient } = require('../dist/EETClient');
+const { eetSend } = require('../dist/index');
 
 const fs = require('fs');
 
@@ -44,8 +44,7 @@ const items = {
 
 };
 
-const client = new EETClient(options);
-client.request(items)
+eetSend(items, options)
 	.then(({ request, response }) => {
 
 		console.log('ok', response);

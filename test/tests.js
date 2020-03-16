@@ -3,7 +3,7 @@
 import fs from 'fs';
 import test from 'ava';
 
-const { EETClient } = require('../src/EETClient');
+const { eetSend } = require('../src/index');
 import * as crypto from '../src/crypto';
 import * as utils from '../src/utils';
 import * as schema from '../src/schema';
@@ -169,7 +169,7 @@ test('request correct', async t => {
 		certificate: CERTIFICATE,
 	};
 
-	const { response: { fik, warnings } } = await new EETClient(options).request(data);
+	const { response: { fik, warnings } } = await eetSend(data, options);
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
@@ -212,7 +212,7 @@ test('request correct all fields', async t => {
 		certificate: CERTIFICATE,
 	};
 
-	const { response: { fik, warnings } } = await new EETClient(options).request(data);
+	const { response: { fik, warnings } } = await eetSend(data, options);
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
@@ -245,7 +245,7 @@ test('request wrong online', async t => {
 
 	t.plan(1);
 
-	return new EETClient(options).request(data)
+	return eetSend(data, options)
 		.then(() => t.fail())
 		.catch(error => {
 			t.is(error._kod, '4');
@@ -275,7 +275,7 @@ test('request wrong offline', async t => {
 
 	t.plan(1);
 
-	return new EETClient(options).request(data)
+	return eetSend(data, options)
 		.then(() => t.fail())
 		.catch(error => {
 			t.is(error._kod, '4');
@@ -303,7 +303,7 @@ test('getWarnings wrong datTrzby', async t => {
 		certificate: CERTIFICATE,
 	};
 
-	const { response: { fik, warnings } } = await new EETClient(options).request(data);
+	const { response: { fik, warnings } } = await eetSend(data, options);
 
 	t.not(fik, undefined);
 	t.not(warnings, undefined);
