@@ -7,7 +7,7 @@ import { parseResponseXML, serializeSoapEnvelope } from './helpers';
 import fetch from 'node-fetch';
 
 const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
-const SOAP_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
+const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
 
 /**
  * Sends request to EET to get FIK
@@ -22,7 +22,7 @@ export const eetSend = (request, options) => {
 	const { header, data } = parseRequest(request);
 	const message = serializeSoapEnvelope(options.privateKey, options.certificate, header, data);
 
-	const url = options.playground ? PLAYGROUND_URL : SOAP_URL;
+	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 
 	return fetch(url, { method: 'POST', body: message })
 		.then(response => response.text())
