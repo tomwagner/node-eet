@@ -13,7 +13,7 @@ const options = {
 	privateKey: PRIVATE_KEY,
 	certificate: CERTIFICATE,
 	playground: true,
-	timeout: 2000,
+	timeout: 3000,
 };
 
 const items = {

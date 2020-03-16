@@ -40,9 +40,23 @@ export const eetSend = (request, options) => {
 
 	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 
-	return fetch(url, { method: 'POST', body: message })
+	return fetch(url, {
+		method: 'POST',
+		body: message,
+		headers: {
+			'Accept-Encoding': 'gzip,deflate',
+			'Accept': 'application/xml',
+			'Connection': 'close',
+			'User-Agent': 'nfctron/eet',
+			'Content-type': ['text/xml; charset=UTF-8'],
+		},
+		redirect: 'error',
+		follow: 0,
+		timeout: options.timeout || 5000,
+		size: 65536,
+	})
 		.then(response => response.text())
-		.then(response => parseResponseXML(response, options.measureResponseTime ? this.lastElapsedTime : undefined))
+		.then(response => parseResponseXML(response, options.measureResponseTime ? lastElapsedTime : undefined))
 		.then(response => {
 
 			return {
