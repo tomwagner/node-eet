@@ -81,7 +81,7 @@ ${body}
  * Parse XML response
  * @returns {Promise}
  */
-export const parseResponseXML = (xml, duration) => {
+export const parseResponseXML = (xml) => {
 
 	return new Promise((resolve, reject) => {
 
@@ -110,10 +110,6 @@ export const parseResponseXML = (xml, duration) => {
 				test: body['_test'] === 'true',
 				fik: body['_fik'],
 			};
-
-			if (isDefined(duration)) {
-				data.duration = duration;
-			}
 
 			if (isDefined(parsed['Envelope']['Body']['Odpoved']['Varovani'])) {
 				data.warnings = parsed['Envelope']['Body']['Odpoved']['Varovani'];

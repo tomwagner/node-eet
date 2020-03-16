@@ -167,13 +167,15 @@ test('request correct', async t => {
 		playground: true,
 		privateKey: PRIVATE_KEY,
 		certificate: CERTIFICATE,
+		measureResponseTime: true,
 	};
 
-	const { response: { fik, warnings } } = await eetSend(data, options);
+	const { response: { fik, warnings, responseTime } } = await eetSend(data, options);
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
 	t.is(warnings, undefined);
+	t.assert(responseTime > 0);
 
 	t.log('FIK:', fik);
 

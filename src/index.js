@@ -40,6 +40,8 @@ export const eetSend = (request, options) => {
 
 	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 
+	const startTime = process.hrtime.bigint();
+
 	return fetch(url, {
 		method: 'POST',
 		body: message,
@@ -56,8 +58,14 @@ export const eetSend = (request, options) => {
 		size: 65536,
 	})
 		.then(response => response.text())
-		.then(response => parseResponseXML(response, options.measureResponseTime ? lastElapsedTime : undefined))
+		.then(response => parseResponseXML(response))
 		.then(response => {
+
+			if (options.measureResponseTime) {
+				// Save response timeout in milliseconds
+				const endTime = process.hrtime.bigint();
+				response.responseTime = Number((endTime - startTime)) / 1000000;
+			}
 
 			return {
 				request: {
