@@ -38,6 +38,7 @@ export const eetSend = (request, options) => {
 	const { header, data } = parseRequest(request);
 	const message = serializeSoapEnvelope(options.privateKey, options.certificate, header, data);
 
+	/* istanbul ignore next */
 	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 
 	const startTime = process.hrtime.bigint();
