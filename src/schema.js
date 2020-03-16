@@ -4,7 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import {
 	convertAmountToString,
 	convertBooleanToString,
-	convertDateToString, isDefined, validateAmount,
+	convertDateToString,
+	isDefined,
+	validateAmount,
 	validateIdPokl,
 	validateIdProvoz,
 	validatePoradCis,
@@ -201,7 +203,7 @@ export const parseRequest = request => {
 	for (const [key, {
 		type,
 		name,
-		required = false,
+		required,
 		getDefault,
 		validate = () => true,
 		format = value => value

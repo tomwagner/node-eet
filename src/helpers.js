@@ -3,6 +3,7 @@
 import parser from 'fast-xml-parser';
 import { isDefined } from './utils';
 import { generateBKP, generatePKP, hashSha256Base64, removePkcsHeader, signSha256Base64 } from './crypto';
+import { ResponseParsingError, ResponseServerError } from './errors';
 
 
 /**
@@ -86,7 +87,7 @@ export const parseResponseXML = (xml) => {
 	return new Promise((resolve, reject) => {
 
 		if (parser.validate(xml) !== true) {
-			reject(parser.validate(xml));
+			return reject(new ResponseParsingError('Error parsing XML', parser.validate(xml)));
 		}
 
 		// TODO: Validate digital signature here
@@ -112,23 +113,22 @@ export const parseResponseXML = (xml) => {
 			};
 
 			if (isDefined(parsed['Envelope']['Body']['Odpoved']['Varovani'])) {
-				data.warnings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
+				data.warnings = {
+					message: parsed['Envelope']['Body']['Odpoved']['Varovani']['#text'],
+					code: parsed['Envelope']['Body']['Odpoved']['Varovani']['_kod_varov'],
+				};
 			}
 
 			return resolve(data);
 
 		} catch (e) {
-			try {
 
-				// Try to parse error message from XML
-				return reject(parsed['Envelope']['Body']['Odpoved']['Chyba']);
+			// Try to parse error message from XML
+			return reject(new ResponseServerError(
+				parsed['Envelope']['Body']['Odpoved']['Chyba']['#text'],
+				parsed['Envelope']['Body']['Odpoved']['Chyba']['_kod'],
+			));
 
-			} catch (e) {
-
-				// General exception
-				return reject(e);
-
-			}
 		}
 
 	});

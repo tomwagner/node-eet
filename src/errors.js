@@ -1,49 +1,30 @@
 "use strict";
 
 
-export class BaseError extends Error {
+export class ResponseServerError extends Error {
 
-	constructor(code, message, previousError) {
+	constructor(message, code) {
 
-		super(message);
-
+		super();
 		Error.captureStackTrace(this, this.constructor);
-
-		this.name = 'BaseError';
-
-		if (!message && previousError) {
-			this.message = previousError.message;
-		}
+		this.name = 'ResponseServerError';
 
 		this.code = code;
-
-		if (previousError) {
-			this.previous = previousError;
-		}
+		this.message = message;
 
 	}
 
 }
 
-export class ValidationError extends BaseError {
+export class ResponseParsingError extends Error {
 
-	constructor(code, message, previousError) {
+	constructor(message, info) {
 
-		super(code, message, previousError);
+		super();
+		Error.captureStackTrace(this, this.constructor);
+		this.name = 'ResponseParsingError';
 
-		this.name = 'ValidationError';
-
-	}
-
-}
-
-export class ResponseError extends BaseError {
-
-	constructor(code, message, previousError) {
-
-		super(code, message, previousError);
-
-		this.name = 'ResponseError';
+		this.info = info;
 
 	}
 

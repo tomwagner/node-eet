@@ -1,6 +1,6 @@
 "use strict";
 
-import { BaseError, ValidationError, ResponseError } from './errors';
+import { ResponseError, ValidationError } from './errors';
 import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
 import { parseResponseXML, serializeSoapEnvelope } from './helpers';
@@ -54,7 +54,7 @@ export const eetSend = (request, options) => {
 		},
 		redirect: 'error',
 		follow: 0,
-		timeout: options.timeout || 5000,
+		timeout: options.timeout || 10000,
 		size: 65536,
 	})
 		.then(response => response.text())
@@ -75,6 +75,9 @@ export const eetSend = (request, options) => {
 				response: response,
 			};
 
+		})
+		.catch(error => {
+			throw error;
 		});
 
 };
