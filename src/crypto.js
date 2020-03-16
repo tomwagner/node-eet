@@ -15,12 +15,16 @@ export const generatePKP = (privateKey, { dic_popl, id_provoz, id_pokl, porad_ci
 
 /**
  * Generates BKP (bezpecnostni kod poplatnika)
+ * SHA256, hex format, case insensitive, 5 block of 8 chars joined with '-'
+ * Always returned lowercase
  * @see http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf (section 4.2)
  */
 export const generateBKP = (pkp) => {
 	const buffer = Buffer.from(pkp, 'base64');
 	const sha1str = hashSha1Hex(buffer);
-	return sha1str.match(/(.{1,8})/g).join('-');
+	return [sha1str.slice(0, 8), sha1str.slice(8, 16), sha1str.slice(16, 24), sha1str.slice(24, 32), sha1str.slice(32, 40)]
+		.join('-')
+		.toLowerCase();
 };
 
 
