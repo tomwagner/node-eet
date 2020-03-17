@@ -140,11 +140,28 @@ export const parseResponseXML = (xml) => {
 			};
 
 			// Warning(s) can be part of message
-			if (isDefined(parsed['Envelope']['Body']['Odpoved']['Varovani'])) {
-				data.warnings = {
-					message: parsed['Envelope']['Body']['Odpoved']['Varovani']['#text'],
-					code: parsed['Envelope']['Body']['Odpoved']['Varovani']['_kod_varov'],
-				};
+			const warnings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
+			if (isDefined(warnings)) {
+
+				if (Array.isArray(warnings)) {
+
+					// Multiple warnings in an array
+					data.warnings = warnings
+						.map((warning) => {
+							return {
+								message: warning['#text'],
+								code: warning['_kod_varov'],
+							}
+						});
+				}
+				else {
+
+					// Make array from single warning
+					data.warnings = [{
+						message: warnings['#text'],
+						code: warnings['_kod_varov'],
+					}];
+				}
 			}
 
 			return resolve(data);
