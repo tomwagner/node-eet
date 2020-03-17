@@ -12,7 +12,7 @@ import {
 	validatePoradCis,
 	validateVatId,
 } from './utils';
-import { ValidationError } from './errors';
+import { RequestParsingError } from './errors';
 
 
 export const SCHEMA = {
@@ -195,7 +195,7 @@ export const SCHEMA = {
 export const parseRequest = request => {
 
 	if (!isDefined(request) || typeof request !== 'object') {
-		throw new ValidationError('invalid_request', 'Invalid request data given. Data must be a non-null object.');
+		throw new RequestParsingError('Invalid request data given. Data must be a non-null object.', request);
 	}
 
 	const result = {};
@@ -217,7 +217,7 @@ export const parseRequest = request => {
 		const value = request[key];
 
 		if (required && !isDefined(value)) {
-			throw new ValidationError(name, `${key} must be set.`);
+			throw new RequestParsingError(`${key} must be set.`, request);
 		}
 
 		if (!isDefined(value)) {
@@ -225,7 +225,7 @@ export const parseRequest = request => {
 		}
 
 		if (!validate(value)) {
-			throw new ValidationError(name, `Validation failed for ${key}. '${value}' given.`);
+			throw new RequestParsingError(`Validation failed for ${key}. '${value}' given.`, value);
 		}
 
 		if (!result[type]) {

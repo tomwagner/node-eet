@@ -5,12 +5,9 @@ export class ResponseServerError extends Error {
 
 	constructor(message, code) {
 
-		super();
-		Error.captureStackTrace(this, this.constructor);
-		this.name = 'ResponseServerError';
-
+		super(message);
 		this.code = code;
-		this.message = message;
+		Error.captureStackTrace(this, this.constructor);
 
 	}
 
@@ -20,11 +17,21 @@ export class ResponseParsingError extends Error {
 
 	constructor(message, info) {
 
-		super();
-		Error.captureStackTrace(this, this.constructor);
-		this.name = 'ResponseParsingError';
-
+		super(message);
 		this.info = info;
+		Error.captureStackTrace(this, this.constructor);
+
+	}
+
+}
+
+export class RequestParsingError extends Error {
+
+	constructor(message, info) {
+
+		super(message);
+		this.info = info;
+		Error.captureStackTrace(this, this.constructor);
 
 	}
 

@@ -1,6 +1,5 @@
 "use strict";
 
-import { ResponseError, ValidationError } from './errors';
 import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
 import { parseResponseXML, serializeSoapEnvelope } from './helpers';
@@ -10,7 +9,7 @@ const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
 const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
 
 /**
- * Generates PKP and BKP
+ * Generates PKP and BKP from data object
  * @param data {object}
  * @param privateKey {string}
  * @returns {{PKP: string, BKP: string}}
@@ -26,12 +25,13 @@ export const eetGenerateSecurityCodes = (data, privateKey) => {
 };
 
 /**
- * Sends request to EET to get FIK
+ * Sends request to EET server
  * @param request {object}
  * @param options {object}
  * @return {Promise.<object>}
- * @throws ValidationError
- * @throws ResponseError
+ * @throws {RequestParsingError}
+ * @throws {ResponseParsingError}
+ * @throws {ResponseServerError}
  */
 export const eetSend = (request, options) => {
 
@@ -50,22 +50,24 @@ export const eetSend = (request, options) => {
 			'Accept-Encoding': 'gzip,deflate',
 			'Accept': 'application/xml',
 			'Connection': 'close',
-			'User-Agent': 'nfctron/eet',
-			'Content-type': ['text/xml; charset=UTF-8'],
+			'User-Agent': 'nfctron/eet (+github.com/NFCtron/eet/tree/rewrite)',
+			'Content-type': ['application/xml; charset=UTF-8'],
 		},
 		redirect: 'error',
 		follow: 0,
 		timeout: options.timeout || 10000,
-		size: 65536,
+		size: 65536, // maximum response size, unofficial
 	})
 		.then(response => response.text())
 		.then(response => parseResponseXML(response))
 		.then(response => {
 
 			if (options.measureResponseTime) {
+
 				// Save response timeout in milliseconds
 				const endTime = process.hrtime.bigint();
 				response.responseTime = Number((endTime - startTime)) / 1000000;
+
 			}
 
 			return {
@@ -78,7 +80,10 @@ export const eetSend = (request, options) => {
 
 		})
 		.catch(error => {
+
+			// Rethrow error
 			throw error;
+
 		});
 
 };

@@ -44,12 +44,8 @@ const items = {
 
 eetSend(items, options)
 	.then(({ request, response }) => {
-
 		console.log('ok', response);
-
 	})
 	.catch(err => {
-
 		console.error('error', err);
-
 	});
