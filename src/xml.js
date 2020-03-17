@@ -23,7 +23,7 @@ export const serializeData = (data) => {
 
 /**
  * Generates data for XML element KontrolniKody
- * @param privateKey {string}
+ * @param privateKey {Buffer}
  * @param data {object}
  * @returns {string} canonical
  */
@@ -91,7 +91,7 @@ export const serializeSoapEnvelope = (privateKey, certificate, header, data) => 
 								<SignatureValue>${signature}</SignatureValue>
 								<KeyInfo>
 									<wsse:SecurityTokenReference>
-										<wsse:Reference URI="#cert" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"></wsse:Reference>
+										<wsse:Reference URI="#cert" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" />
 									</wsse:SecurityTokenReference>
 								</KeyInfo>
 							</Signature>

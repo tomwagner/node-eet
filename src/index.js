@@ -2,7 +2,7 @@
 
 import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
-import { parseResponseXML, serializeSoapEnvelope } from './helpers';
+import { parseResponseXML, serializeSoapEnvelope } from './xml';
 import fetch from 'node-fetch';
 
 const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
@@ -11,7 +11,7 @@ const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
 /**
  * Generates PKP and BKP from data object
  * @param data {object}
- * @param privateKey {string}
+ * @param privateKey {Buffer}
  * @returns {{PKP: string, BKP: string}}
  */
 export const eetGenerateSecurityCodes = (data, privateKey) => {
