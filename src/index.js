@@ -2,7 +2,7 @@
 
 import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
-import { parseResponseXML, serializeSoapEnvelope } from './xml';
+import { extractResponse, parseResponseXML, serializeSoapEnvelope } from './xml';
 import fetch from 'node-fetch';
 
 const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
@@ -58,8 +58,9 @@ export const eetSend = (request, options) => {
 		timeout: options.timeout || 10000,
 		size: 65536, // maximum response size, unofficial
 	})
-		.then(response => response.text())
-		.then(response => parseResponseXML(response))
+		.then(rawResponse => rawResponse.text())
+		.then(xml => parseResponseXML(xml))
+		.then(parsed => extractResponse(parsed))
 		.then(response => {
 
 			if (options.measureResponseTime) {

@@ -103,7 +103,7 @@ export const serializeSoapEnvelope = (privateKey, certificate, header, data) => 
 };
 
 /**
- * Parse XML response
+ * Parse XML response into DOM
  * @param xml {string}
  * @returns {Promise}
  * @throws {ResponseParsingError}
@@ -113,18 +113,41 @@ export const parseResponseXML = (xml) => {
 
 	return new Promise((resolve, reject) => {
 
-		if (parser.validate(xml) !== true) {
-			return reject(new ResponseParsingError('Error parsing XML', parser.validate(xml)));
+		const parsingError = parser.validate(xml);
+
+		if (parsingError === true) {
+
+			const options = {
+				attributeNamePrefix: "_",
+				ignoreAttributes: false,
+				ignoreNameSpace: true,
+			};
+
+			const parsed = parser.parse(xml, options);
+
+			return resolve(parsed);
+
+		}
+		else {
+
+			return reject(new ResponseParsingError('Error parsing XML', parsingError));
+
 		}
 
-		// TODO: Validate digital signature here
+	});
 
-		const options = {
-			attributeNamePrefix: "_",
-			ignoreAttributes: false,
-			ignoreNameSpace: true,
-		};
-		const parsed = parser.parse(xml, options);
+};
+
+/**
+ * Transform XML DOM into data object
+ * @param parsed {object}
+ * @returns {object}
+ * @throws {ResponseParsingError}
+ * @throws {ResponseServerError}
+ */
+export const extractResponse = parsed => {
+
+	return new Promise((resolve, reject) => {
 
 		try {
 
@@ -180,3 +203,10 @@ export const parseResponseXML = (xml) => {
 
 };
 
+export const validateSOAPSignature = xml => {
+	return new Promise((resolve, reject) => {
+
+		// TODO: Validate digital signature here
+		return resolve(xml);
+	});
+};

@@ -230,7 +230,7 @@ test('parseResponseXML correct', async t => {
 		date: new Date('2020-03-05T19:56:02+01:00'),
 	};
 
-	t.deepEqual(await xml.parseResponseXML(response), expected);
+	t.deepEqual(await xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed)), expected);
 
 });
 
@@ -260,8 +260,8 @@ test('parseResponseXML warning single', async t => {
 		code: '1',
 	}];
 
-	const parsed = await xml.parseResponseXML(response);
-	t.deepEqual(parsed.warnings, expected);
+	const actual = await xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed));
+	t.deepEqual(actual.warnings, expected);
 
 });
 
@@ -302,7 +302,7 @@ test('parseResponseXML warning multiple', async t => {
 			code: '3',
 		}];
 
-	const parsed = await xml.parseResponseXML(response);
+	const parsed = await xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed));
 	t.deepEqual(parsed.warnings, expected);
 
 });
@@ -327,7 +327,7 @@ test('parseResponseXML ResponseServerError', async t => {
 	<eet:Chyba kod="5">Neplatny kontrolni bezpecnostni kod poplatnika (BKP)</eet:Chyba>
 </eet:Odpoved></soap:Body></soap:Envelope>`;
 
-	const error = await t.throwsAsync(xml.parseResponseXML(response));
+	const error = await t.throwsAsync(xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed)));
 	t.assert(error instanceof errors.ResponseServerError);
 	t.is(error.code, '5');
 	t.is(error.message, 'Neplatny kontrolni bezpecnostni kod poplatnika (BKP)');
