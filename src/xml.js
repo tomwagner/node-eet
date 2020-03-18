@@ -8,6 +8,7 @@ import { ResponseParsingError, ResponseServerError } from './errors';
 
 /**
  * Generates data for XML element Data
+ * TODO: generalize?
  * @param data {object}
  * @returns {string} canonical
  */
@@ -33,6 +34,7 @@ export const serializeKontrolniKody = (privateKey, data) => {
 	const bkp = generateBKP(pkp);
 
 	return `<KontrolniKody><pkp cipher="RSA2048" digest="SHA256" encoding="base64">${pkp}</pkp><bkp digest="SHA1" encoding="base16">${bkp}</bkp></KontrolniKody>`;
+
 };
 
 /**
@@ -44,6 +46,7 @@ export const serializeKontrolniKody = (privateKey, data) => {
  */
 export const serializeSoapBody = (privateKey, header, data) => {
 
+	// TODO: fix missing overeni in Hlavicka !!!
 	return `<soap:Body xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" id="Body">
 <Trzba xmlns="http://fs.mfcr.cz/eet/schema/v3">
 <Hlavicka dat_odesl="${header.dat_odesl}" prvni_zaslani="${header.prvni_zaslani}" uuid_zpravy="${header.uuid_zpravy}"></Hlavicka>
@@ -208,5 +211,6 @@ export const validateSOAPSignature = xml => {
 
 		// TODO: Validate digital signature here
 		return resolve(xml);
+
 	});
 };

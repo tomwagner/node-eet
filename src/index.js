@@ -1,12 +1,15 @@
 "use strict";
 
+import fetch from 'node-fetch';
+
 import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
 import { extractResponse, parseResponseXML, serializeSoapEnvelope } from './xml';
-import fetch from 'node-fetch';
+import { isDefined } from './utils';
 
-const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/';
-const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
+
+export const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3';
+export const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
 
 /**
  * Generates PKP and BKP from data object
@@ -41,11 +44,13 @@ export const eetSend = (request, options) => {
 	/* istanbul ignore next */
 	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 
-	const startTime = process.hrtime.bigint();
+	/* istanbul ignore next */
+	const startTime = options.measureResponseTime ? process.hrtime.bigint() : undefined;
 
 	return fetch(url, {
+
+		// these properties are part of the Fetch Standard
 		method: 'POST',
-		body: message,
 		headers: {
 			'Accept-Encoding': 'gzip,deflate',
 			'Accept': 'application/xml',
@@ -53,22 +58,28 @@ export const eetSend = (request, options) => {
 			'User-Agent': 'nfctron/eet (+github.com/NFCtron/eet/tree/rewrite)',
 			'Content-type': ['application/xml; charset=UTF-8'],
 		},
-		redirect: 'error',
-		follow: 0,
-		timeout: options.timeout || 10000,
-		size: 65536, // maximum response size, unofficial
+		body: message,
+		redirect: 'error', // `error` to reject redirects
+		// TODO: add support for signal
+
+		// the following properties are node-fetch extensions
+		follow: 0, // maximum redirect count. 0 to not follow redirect
+		/* istanbul ignore next */
+		timeout: isDefined(options.timeout) ? options.timeout : 10000,
+		size: 65536, // (= 64 KB) maximum response size in bytes, unofficial
+		// TODO: consider supporting custom agent option
+
 	})
 		.then(rawResponse => rawResponse.text())
+		// TODO: check content type instead assuming XML?
 		.then(xml => parseResponseXML(xml))
 		.then(parsed => extractResponse(parsed))
 		.then(response => {
 
 			if (options.measureResponseTime) {
-
-				// Save response timeout in milliseconds
+				// save response timeout in milliseconds
 				const endTime = process.hrtime.bigint();
 				response.responseTime = Number((endTime - startTime)) / 1000000;
-
 			}
 
 			return {
@@ -82,7 +93,8 @@ export const eetSend = (request, options) => {
 		})
 		.catch(error => {
 
-			// Rethrow error
+			// TODO: why are we rethrowing error here? why not remove catch clause at all?
+			// rethrow error
 			throw error;
 
 		});
