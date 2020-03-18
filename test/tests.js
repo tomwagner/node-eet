@@ -12,7 +12,7 @@ import * as eet from '../src/index';
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/private.pem');
-const FAKE_PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/fake.pem');
+const FAKE_PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/fake-private.pem');
 const CERTIFICATE = fs.readFileSync('./test/certificate-CZ1212121218/certificate.pem');
 const TEST_PKP = 'QEIvS/3ETSJuAK7agvrVlQUN1Oi4DoPrNBmC+sQueNknhsr48RGElLpzTnxH/KUdfde91xFOcRbgyiXapK4beRTRaZ/CQ1qug4Y7JbnhB60WUH61E2NlTzxTfmidcNIlQohrVDC5awyrZQj2T1cG+3gGPHQ/oveM4ozt5gLaHFDwl421eLQctxeQfXK4dDrZDANX6AVB8Q92X89o9YouISCjIrYk7ZnLhDe+cXxlB0GGJq5i1P2uALOgQyZBU5mBWLolL2n06C73Sja7HjCt9E8s6bV9y1cJZcjXo1tWOEUqfU8ir/wYstO11v/JmiRADGwGoCuCszktUmf4K3PaDg==';
 
@@ -77,8 +77,8 @@ test('parseRequest', t => {
 		porad_cis: '0/6460/ZQ42',
 		dat_trzby: '2016-08-04T22:30:12Z',
 		celk_trzba: '-34113.80',
-		id_provoz: 273,
-		rezim: 0,
+		id_provoz: '273',
+		rezim: '0',
 	};
 
 	t.deepEqual(result.data, expected);
@@ -129,8 +129,8 @@ test('parseRequest missing required', t => {
 });
 
 test('validateVatId', t => {
-	t.truthy(utils.validateVatId('CZ1212121218'));
-	t.falsy(utils.validateVatId(1212121218));
+	t.truthy(utils.validateCzVatId('CZ1212121218'));
+	t.falsy(utils.validateCzVatId(1212121218));
 });
 
 test('validateIdProvoz', t => {
