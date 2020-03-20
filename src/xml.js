@@ -7,21 +7,23 @@ import { ResponseParsingError, ResponseServerError, WrongServerResponse } from '
 import fetch from 'node-fetch';
 
 
-// TODO: warn about XSS and why is not a problem for us
-
 /**
- * Generates data for XML element Data
- * TODO: describe why the attributes must be sorted and why the self-closing tag cannot be used
- * @param name {string}
+ * Serializes single empty XML with attributes in XML canonical form
+ * Input must be sanitized against XSS
+ * Canonicalization requirements:
+ *   - tag must be properly closed
+ *   - attributes must be sorted alphabetically
+ * @see https://www.w3.org/TR/xml-exc-c14n/
+ * @param tagName {string}
  * @param attributes {object}
- * @returns {string} canonical TODO: expand the desc of the return value
+ * @returns {string} XML tag in canonical form
  */
-export const serializeXMLElement = (name, attributes) =>
-	`<${name} ${
+export const serializeXMLElement = (tagName, attributes) =>
+	`<${tagName} ${
 		Object.entries(attributes)
 			.map(([key, value]) => `${key}="${value}"`)
-			.sort() // TODO: what about the same attributes, is it okay that in such case it is sorted by the value?
-			.join(' ')}></${name}>`
+			.sort()
+			.join(' ')}></${tagName}>`
 ;
 
 /**
