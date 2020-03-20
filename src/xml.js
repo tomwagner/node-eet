@@ -26,6 +26,54 @@ export const serializeXMLElement = (tagName, attributes) =>
 			.join(' ')}></${tagName}>`
 ;
 
+export const serializeXMLElement2 = (name, attributes) =>
+	`<${name} ${
+		Object.entries(attributes)
+			.sort(([a], [b]) => a < b ? -1 : a > b)
+			.map(([key, value]) => `${key}="${value}"`)
+			.join(' ')}></${name}>`
+;
+
+export const serializeXMLElement3 = (name, attributes) =>
+	`<${name} ${
+		Object.entries(attributes)
+			.sort(([a], [b]) => a.localeCompare(b))
+			.map(([key, value]) => `${key}="${value}"`)
+			.join(' ')}></${name}>`
+;
+
+export const serializeXMLElement4 = (name, attributes) =>
+	`<${name} ${
+		Object.entries(attributes)
+			.map(([key, value]) => `${key}="${value}"`)
+			.sort((a, b) => a < b ? -1 : a > b)
+			.join(' ')}></${name}>`
+;
+
+export const serializeXMLElement5 = (name, attributes) =>
+	`<${name} ${
+		Object.entries(attributes)
+			.sort(([a], [b]) => a < b ? -1 : (a > b ? 1 : 0))
+			.map(([key, value]) => `${key}="${value}"`)
+			.join(' ')}></${name}>`
+;
+
+export const serializeXMLElement6 = (name, attributes) =>
+	`<${name} ${
+		Object.keys(attributes)
+			.sort()
+			.map(key => `${key}="${attributes[key]}"`)
+			.join(' ')}></${name}>`
+;
+
+export const serializeXMLElement7 = (name, attributes) =>
+	`<${name} ${
+		Object.keys(attributes)
+			.sort()
+			.reduce((key, acc) => acc + ` ${key}="${attributes[key]}"`, '')
+	}></${name}>`
+;
+
 /**
  * Generates data for XML element KontrolniKody
  * @param pkp {string} PKP
