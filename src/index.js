@@ -12,22 +12,6 @@ export const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3'
 export const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
 
 /**
- * Generates PKP and BKP from data object
- * @param data {object}
- * @param privateKey {Buffer}
- * @returns {{PKP: string, BKP: string}}
- */
-export const eetGenerateSecurityCodes = (data, privateKey) => {
-
-	const pkp = generatePKP(privateKey, data);
-	return {
-		PKP: pkp,
-		BKP: generateBKP(pkp),
-	};
-
-};
-
-/**
  * Sends request to EET server
  * @param request {object}
  * @param options {object}
@@ -36,17 +20,28 @@ export const eetGenerateSecurityCodes = (data, privateKey) => {
  * @throws {ResponseParsingError}
  * @throws {ResponseServerError}
  */
-export const eetSend = (request, options) => {
+export const sendEETRequest = (request, options) => {
 
-	const { header, data } = parseRequest(request);
-	const message = serializeSoapEnvelope(options.privateKey, options.certificate, header, data);
+	const parsedRequest = parseRequest(request);
+	const { header, data } = parsedRequest;
+	const pkp = generatePKP(options.privateKey, data);
+	const bkp = generateBKP(pkp);
 
-	/* istanbul ignore next */
+	const message = serializeSoapEnvelope({
+		header,
+		data,
+		pkp,
+		bkp,
+		privateKey: options.privateKey,
+		certificate: options.certificate,
+	});
+
 	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 
-	/* istanbul ignore next */
 	const startTime = options.measureResponseTime ? process.hrtime.bigint() : undefined;
 
+	// TODO: use async/await
+	// TODO: return bkp and pkp in errors
 	return fetch(url, {
 
 		// these properties are part of the Fetch Standard
@@ -55,7 +50,7 @@ export const eetSend = (request, options) => {
 			'Accept-Encoding': 'gzip,deflate',
 			'Accept': 'application/xml',
 			'Connection': 'close',
-			'User-Agent': 'nfctron/eet (+github.com/NFCtron/eet/tree/rewrite)',
+			'User-Agent': 'nfctron/eet (+github.com/NFCtron/eet/tree/rewrite)', // TODO: why like this?
 			'Content-type': ['application/xml; charset=UTF-8'],
 		},
 		body: message,
@@ -83,10 +78,7 @@ export const eetSend = (request, options) => {
 			}
 
 			return {
-				request: {
-					...header,
-					...data,
-				},
+				request: parsedRequest,
 				response: response,
 			};
 

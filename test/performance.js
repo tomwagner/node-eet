@@ -3,7 +3,7 @@
 const { randomBytes } = require('crypto');
 const fs = require('fs');
 
-const { eetSend } = require('../src/index');
+const { sendEETRequest } = require('../src/index');
 
 
 const PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/private.pem');
@@ -56,7 +56,7 @@ for (let i = 0; i < TEST_CASES; i++) {
 	const id = randomBytes(5).toString('hex');
 
 		test.push(
-			eetSend({
+			sendEETRequest({
 				...items,
 				poradCis: `${id}-${i.toString()}`,
 			}, options)

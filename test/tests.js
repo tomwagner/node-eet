@@ -15,6 +15,7 @@ const PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/private.pem
 const FAKE_PRIVATE_KEY = fs.readFileSync('./test/certificate-CZ1212121218/fake-private.pem');
 const CERTIFICATE = fs.readFileSync('./test/certificate-CZ1212121218/certificate.pem');
 const TEST_PKP = 'QEIvS/3ETSJuAK7agvrVlQUN1Oi4DoPrNBmC+sQueNknhsr48RGElLpzTnxH/KUdfde91xFOcRbgyiXapK4beRTRaZ/CQ1qug4Y7JbnhB60WUH61E2NlTzxTfmidcNIlQohrVDC5awyrZQj2T1cG+3gGPHQ/oveM4ozt5gLaHFDwl421eLQctxeQfXK4dDrZDANX6AVB8Q92X89o9YouISCjIrYk7ZnLhDe+cXxlB0GGJq5i1P2uALOgQyZBU5mBWLolL2n06C73Sja7HjCt9E8s6bV9y1cJZcjXo1tWOEUqfU8ir/wYstO11v/JmiRADGwGoCuCszktUmf4K3PaDg==';
+const TEST_BKP = 'b8f8392b-f73c8643-0ba0c171-142caa01-4c7a4078';
 
 
 test('generatePKP', t => {
@@ -33,7 +34,7 @@ test('generatePKP', t => {
 });
 
 test('generateBKP', t => {
-	t.is(crypto.generateBKP(TEST_PKP), 'b8f8392b-f73c8643-0ba0c171-142caa01-4c7a4078');
+	t.is(crypto.generateBKP(TEST_PKP), TEST_BKP);
 });
 
 test('convertDateToString', t => {
@@ -162,43 +163,9 @@ test('validateAmount', t => {
 
 test('serializeKontrolniKody', t => {
 
-	const data = {
-		dic_popl: 'CZ1212121218',
-		id_provoz: '273',
-		id_pokl: '/5546/RO24',
-		porad_cis: '0/6460/ZQ42',
-		dat_trzby: '2016-08-05T00:30:12+02:00',
-		celk_trzba: '34113.00',
-	};
+	const expected = `<KontrolniKody><pkp cipher="RSA2048" digest="SHA256" encoding="base64">${TEST_PKP}</pkp><bkp digest="SHA1" encoding="base16">${TEST_BKP}</bkp></KontrolniKody>`;
 
-	const expected = `<KontrolniKody><pkp cipher="RSA2048" digest="SHA256" encoding="base64">${TEST_PKP}</pkp><bkp digest="SHA1" encoding="base16">b8f8392b-f73c8643-0ba0c171-142caa01-4c7a4078</bkp></KontrolniKody>`;
-
-	t.is(xml.serializeKontrolniKody(PRIVATE_KEY, data), expected);
-
-});
-
-test('eetGenerateSecurityCodes', t => {
-
-	const data = {
-		dic_popl: 'CZ1212121218',
-		id_provoz: '273',
-		id_pokl: '/5546/RO24',
-		porad_cis: '0/6460/ZQ42',
-		dat_trzby: '2016-08-05T00:30:12+02:00',
-		celk_trzba: '34113.00',
-	};
-
-	const actual = eet.eetGenerateSecurityCodes(data, PRIVATE_KEY);
-
-	const expected = {
-		PKP: TEST_PKP,
-		BKP: 'b8f8392b-f73c8643-0ba0c171-142caa01-4c7a4078',
-	};
-
-	t.deepEqual(actual, expected);
-
-	t.log('PKP:', actual.PKP);
-	t.log('BKP:', actual.BKP);
+	t.is(xml.serializeKontrolniKody({ pkp: TEST_PKP, bkp: TEST_BKP }), expected);
 
 });
 
@@ -382,7 +349,7 @@ test('request correct', async t => {
 		measureResponseTime: true,
 	};
 
-	const { response: { fik, warnings, responseTime } } = await eet.eetSend(data, options);
+	const { response: { fik, warnings, responseTime } } = await eet.sendEETRequest(data, options);
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
@@ -427,7 +394,7 @@ test('request correct all fields', async t => {
 		certificate: CERTIFICATE,
 	};
 
-	const { response: { fik, warnings } } = await eet.eetSend(data, options);
+	const { response: { fik, warnings } } = await eet.sendEETRequest(data, options);
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
@@ -457,7 +424,7 @@ test('request wrong certificate', async t => {
 		offline: false,
 	};
 
-	const error = await t.throwsAsync(eet.eetSend(data, options));
+	const error = await t.throwsAsync(eet.sendEETRequest(data, options));
 	t.assert(error instanceof errors.ResponseServerError);
 	t.is(error.code, '4');
 	t.log('Error:', error.message);
@@ -483,7 +450,7 @@ test('getWarnings wrong datTrzby', async t => {
 		certificate: CERTIFICATE,
 	};
 
-	const { response: { fik, warnings } } = await eet.eetSend(data, options);
+	const { response: { fik, warnings } } = await eet.sendEETRequest(data, options);
 
 	const expected = [{
 		code: '5',
