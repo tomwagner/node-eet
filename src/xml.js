@@ -117,36 +117,30 @@ export const serializeSoapEnvelope = ({ header, data, pkp, bkp, privateKey, cert
  */
 export const parseResponseXML = (xml) => {
 
-	return new Promise((resolve, reject) => {
 
-		const parsingError = parser.validate(xml);
+	const parsingError = parser.validate(xml);
 
-		if (parsingError === true) {
+	if (parsingError === true) {
 
-			const options = {
-				attributeNamePrefix: "_",
-				ignoreAttributes: false,
-				ignoreNameSpace: true,
-			};
+		const options = {
+			attributeNamePrefix: "_",
+			ignoreAttributes: false,
+			ignoreNameSpace: true,
+		};
 
-			const parsed = parser.parse(xml, options);
+		return parser.parse(xml, options);
 
-			return resolve(parsed);
+	}
+	else {
 
-		}
-		else {
+		throw new ResponseParsingError('Error parsing XML', parsingError);
 
-			return reject(new ResponseParsingError('Error parsing XML', parsingError));
-
-		}
-
-	});
+	}
 
 };
 
 /**
  * Transform XML DOM into data object
- * TODO: remove Promise
  * @param parsed {object}
  * @returns {object}
  * @throws {ResponseParsingError}
@@ -154,68 +148,60 @@ export const parseResponseXML = (xml) => {
  */
 export const extractResponse = parsed => {
 
-	return new Promise((resolve, reject) => {
+	try {
 
-		try {
+		const header = parsed['Envelope']['Body']['Odpoved']['Hlavicka'];
+		const body = parsed['Envelope']['Body']['Odpoved']['Potvrzeni'];
 
-			const header = parsed['Envelope']['Body']['Odpoved']['Hlavicka'];
-			const body = parsed['Envelope']['Body']['Odpoved']['Potvrzeni'];
+		const data = {
+			uuid: header['_uuid_zpravy'],
+			bkp: header['_bkp'],
+			date: new Date(header['_dat_prij']),
+			test: body['_test'] === 'true',
+			fik: body['_fik'],
+		};
 
-			const data = {
-				uuid: header['_uuid_zpravy'],
-				bkp: header['_bkp'],
-				date: new Date(header['_dat_prij']),
-				test: body['_test'] === 'true',
-				fik: body['_fik'],
-			};
+		// Warning(s) can be part of message
+		const warnings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
+		if (isDefined(warnings)) {
 
-			// Warning(s) can be part of message
-			const warnings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
-			if (isDefined(warnings)) {
+			if (Array.isArray(warnings)) {
 
-				if (Array.isArray(warnings)) {
-
-					// Multiple warnings in an array
-					data.warnings = warnings
-						.map((warning) => {
-							return {
-								message: warning['#text'],
-								code: warning['_kod_varov'],
-							}
-						});
-				}
-				else {
-
-					// Make array from single warning
-					data.warnings = [{
-						message: warnings['#text'],
-						code: warnings['_kod_varov'],
-					}];
-				}
+				// Multiple warnings in an array
+				data.warnings = warnings
+					.map((warning) => {
+						return {
+							message: warning['#text'],
+							code: warning['_kod_varov'],
+						}
+					});
 			}
+			else {
 
-			return resolve(data);
-
-		} catch (e) {
-
-			// Try to parse error message from XML
-			return reject(new ResponseServerError(
-				parsed['Envelope']['Body']['Odpoved']['Chyba']['#text'],
-				parsed['Envelope']['Body']['Odpoved']['Chyba']['_kod'],
-			));
-
+				// Make array from single warning
+				data.warnings = [{
+					message: warnings['#text'],
+					code: warnings['_kod_varov'],
+				}];
+			}
 		}
 
-	});
+		return data;
+
+	} catch (e) {
+
+		// Try to parse error message from XML
+		throw new ResponseServerError(
+			parsed['Envelope']['Body']['Odpoved']['Chyba']['#text'],
+			parsed['Envelope']['Body']['Odpoved']['Chyba']['_kod'],
+		);
+
+	}
 
 };
 
 // TODO: remove Promise and finish (check bkp and option.playground too)
 export const validateSOAPSignature = xml => {
-	return new Promise((resolve, reject) => {
-
-		// TODO: validate digital signature here
-		return resolve(xml);
-
-	});
+	// TODO: validate digital signature here
+	return xml;
 };

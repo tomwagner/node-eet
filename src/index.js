@@ -20,7 +20,7 @@ export const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v
  * @throws {ResponseParsingError}
  * @throws {ResponseServerError}
  */
-export const sendEETRequest = (request, options) => {
+export const sendEETRequest = async (request, options) => {
 
 	const parsedRequest = parseRequest(request);
 	const { header, data } = parsedRequest;
@@ -40,9 +40,8 @@ export const sendEETRequest = (request, options) => {
 
 	const startTime = options.measureResponseTime ? process.hrtime.bigint() : undefined;
 
-	// TODO: use async/await
 	// TODO: return bkp and pkp in errors
-	return fetch(url, {
+	const rawResponse = await fetch(url, {
 
 		// these properties are part of the Fetch Standard
 		method: 'POST',
@@ -64,31 +63,25 @@ export const sendEETRequest = (request, options) => {
 		size: 65536, // (= 64 KB) maximum response size in bytes, unofficial
 		// TODO: consider supporting custom agent option
 
-	})
-		.then(rawResponse => rawResponse.text())
-		// TODO: check content type instead assuming XML?
-		.then(xml => parseResponseXML(xml))
-		.then(parsed => extractResponse(parsed))
-		.then(response => {
+	});
 
-			if (options.measureResponseTime) {
-				// save response timeout in milliseconds
-				const endTime = process.hrtime.bigint();
-				response.responseTime = Number((endTime - startTime)) / 1000000;
-			}
+	const xml = await rawResponse.text();
 
-			return {
-				request: parsedRequest,
-				response: response,
-			};
+	// TODO: check content type instead assuming XML?
+	const parsed = parseResponseXML(xml);
 
-		})
-		.catch(error => {
+	const response = extractResponse(parsed);
 
-			// TODO: why are we rethrowing error here? why not remove catch clause at all?
-			// rethrow error
-			throw error;
+	if (options.measureResponseTime) {
+		// save response timeout in milliseconds
+		const endTime = process.hrtime.bigint();
+		response.responseTime = Number((endTime - startTime)) / 1000000;
+	}
 
-		});
+	return {
+		request: parsedRequest,
+		response: response,
+	};
+
 
 };

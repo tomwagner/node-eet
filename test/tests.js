@@ -6,7 +6,7 @@ import * as crypto from '../src/crypto';
 import * as utils from '../src/utils';
 import * as schema from '../src/schema';
 import * as errors from '../src/errors';
-import { RequestParsingError } from '../src/errors';
+import { RequestParsingError, ResponseServerError } from '../src/errors';
 import * as xml from '../src/xml';
 import * as eet from '../src/index';
 
@@ -189,6 +189,8 @@ test('parseResponseXML correct', async t => {
 	<eet:Potvrzeni fik="f741687f-61c8-4672-917a-46bcf8eff62d-fa" test="true" />
 </eet:Odpoved></soap:Body></soap:Envelope>`;
 
+	const parsed = xml.parseResponseXML(response);
+
 	const expected = {
 		uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
 		bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
@@ -197,7 +199,7 @@ test('parseResponseXML correct', async t => {
 		date: new Date('2020-03-05T19:56:02+01:00'),
 	};
 
-	t.deepEqual(await xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed)), expected);
+	t.deepEqual(xml.extractResponse(parsed), expected);
 
 });
 
@@ -222,13 +224,14 @@ test('parseResponseXML warning single', async t => {
 	<eet:Varovani kod_varov="1">DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu</eet:Varovani>
 </eet:Odpoved></soap:Body></soap:Envelope>`;
 
+	const parsed = xml.parseResponseXML(response);
+
 	const expected = [{
 		message: 'DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu',
 		code: '1',
 	}];
 
-	const actual = await xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed));
-	t.deepEqual(actual.warnings, expected);
+	t.deepEqual(xml.extractResponse(parsed).warnings, expected);
 
 });
 
@@ -255,6 +258,8 @@ test('parseResponseXML warning multiple', async t => {
 	<eet:Varovani kod_varov="3" >Chybna hodnota PKP</eet:Varovani>
 </eet:Odpoved></soap:Body></soap:Envelope>`;
 
+	const parsed = xml.parseResponseXML(response);
+
 	const expected = [
 		{
 			message: 'DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu',
@@ -269,8 +274,7 @@ test('parseResponseXML warning multiple', async t => {
 			code: '3',
 		}];
 
-	const parsed = await xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed));
-	t.deepEqual(parsed.warnings, expected);
+	t.deepEqual(xml.extractResponse(parsed).warnings, expected);
 
 });
 
@@ -294,8 +298,13 @@ test('parseResponseXML ResponseServerError', async t => {
 	<eet:Chyba kod="5">Neplatny kontrolni bezpecnostni kod poplatnika (BKP)</eet:Chyba>
 </eet:Odpoved></soap:Body></soap:Envelope>`;
 
-	const error = await t.throwsAsync(xml.parseResponseXML(response).then(parsed => xml.extractResponse(parsed)));
-	t.assert(error instanceof errors.ResponseServerError);
+	const parsed = xml.parseResponseXML(response);
+
+	const error = t.throws(() => {
+			xml.extractResponse(parsed);
+		},
+		{ instanceOf: ResponseServerError },
+	);
 	t.is(error.code, '5');
 	t.is(error.message, 'Neplatny kontrolni bezpecnostni kod poplatnika (BKP)');
 
@@ -323,13 +332,16 @@ test('parseResponseXML ResponseParsingError', async t => {
 	<eet:Potvrzeni fik="f741687f-61c8-4672-917a-46bcf8eff62d-fa" test="true" />
 </eet:Odpoved></soap:Bod`;
 
-	const error = await t.throwsAsync(xml.parseResponseXML(response));
-	t.assert(error instanceof errors.ResponseParsingError);
+	const error = t.throws(() => {
+			xml.parseResponseXML(response);
+		},
+		{ instanceOf: errors.ResponseParsingError },
+	);
 	t.log('Error:', error.message);
 
 });
 
-test('request correct', async t => {
+test('sendEETRequest correct', async t => {
 
 	const data = {
 		prvniZaslani: true,
@@ -361,7 +373,7 @@ test('request correct', async t => {
 
 });
 
-test('request correct all fields', async t => {
+test('sendEETRequest correct all fields', async t => {
 
 	const data = {
 		prvniZaslani: true,
@@ -404,7 +416,7 @@ test('request correct all fields', async t => {
 
 });
 
-test('request wrong certificate', async t => {
+test('sendEETRequest wrong certificate', async t => {
 
 	const data = {
 		prvniZaslani: true,
