@@ -439,7 +439,9 @@ test('sendEETRequest wrong certificate', async t => {
 	const error = await t.throwsAsync(eet.sendEETRequest(data, options));
 	t.assert(error instanceof errors.ResponseServerError);
 	t.is(error.code, '4');
-	t.log('Error:', error.message);
+	t.not(error.bkp, undefined);
+	t.not(error.pkp, undefined);
+	t.log('Error:', error);
 
 });
 

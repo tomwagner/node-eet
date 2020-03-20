@@ -3,7 +3,8 @@
 import parser from 'fast-xml-parser';
 import { isDefined } from './utils';
 import { hashSha256Base64, removePkcsHeader, signSha256Base64 } from './crypto';
-import { ResponseParsingError, ResponseServerError } from './errors';
+import { ResponseParsingError, ResponseServerError, WrongServerResponse } from './errors';
+import fetch from 'node-fetch';
 
 
 // TODO: warn about XSS and why is not a problem for us
@@ -192,8 +193,7 @@ export const extractResponse = parsed => {
 		// Try to parse error message from XML
 		throw new ResponseServerError(
 			parsed['Envelope']['Body']['Odpoved']['Chyba']['#text'],
-			parsed['Envelope']['Body']['Odpoved']['Chyba']['_kod'],
-		);
+			parsed['Envelope']['Body']['Odpoved']['Chyba']['_kod']);
 
 	}
 
@@ -203,4 +203,24 @@ export const extractResponse = parsed => {
 export const validateSOAPSignature = xml => {
 	// TODO: validate digital signature here
 	return xml;
+};
+
+/**
+ * Fetch URL and return XML response
+ * @param url {string}
+ * @param options {object}
+ * @returns {Promise<string>}
+ */
+export const fetchXml = async (url, options) => {
+
+	const response = await fetch(url, options);
+
+	// check content-type header for text/xml of application/xml
+	const contentType = response.headers.get('content-type');
+	if (!(contentType.includes('text/xml') || contentType.includes('application/xml'))) {
+		throw new WrongServerResponse('Unknown content-type: ' + contentType);
+	}
+
+	return await response.text();
+
 };

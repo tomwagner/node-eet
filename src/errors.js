@@ -16,10 +16,9 @@ export class ResponseServerError extends Error {
 // response could not be parsed
 export class ResponseParsingError extends Error {
 
-	constructor(message, info) {
+	constructor(message) {
 
 		super(message);
-		this.info = info;
 		Error.captureStackTrace(this, this.constructor);
 
 	}
@@ -29,10 +28,9 @@ export class ResponseParsingError extends Error {
 // request could not be parsed
 export class RequestParsingError extends Error {
 
-	constructor(message, info) {
+	constructor(message) {
 
 		super(message);
-		this.info = info;
 		Error.captureStackTrace(this, this.constructor);
 
 	}
@@ -42,10 +40,9 @@ export class RequestParsingError extends Error {
 // server sent wrong or unexpected response
 export class WrongServerResponse extends Error {
 
-	constructor(message, info) {
+	constructor(message) {
 
 		super(message);
-		this.info = info;
 		Error.captureStackTrace(this, this.constructor);
 
 	}
