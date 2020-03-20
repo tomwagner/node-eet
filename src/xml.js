@@ -20,9 +20,9 @@ import fetch from 'node-fetch';
  */
 export const serializeXMLElement = (tagName, attributes) =>
 	`<${tagName} ${
-		Object.entries(attributes)
-			.map(([key, value]) => `${key}="${value}"`)
+		Object.keys(attributes)
 			.sort()
+			.map(key => `${key}="${attributes[key]}"`)
 			.join(' ')}></${tagName}>`
 ;
 
