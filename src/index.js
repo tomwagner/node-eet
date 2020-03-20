@@ -6,6 +6,7 @@ import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
 import { extractResponse, parseResponseXML, serializeSoapEnvelope } from './xml';
 import { isDefined } from './utils';
+import { ResponseParsingError, WrongServerResponse } from './errors';
 
 
 export const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3';
@@ -47,9 +48,9 @@ export const sendEETRequest = async (request, options) => {
 		method: 'POST',
 		headers: {
 			'Accept-Encoding': 'gzip,deflate',
-			'Accept': 'application/xml',
+			'Accept': 'application/xml, text/xml',
 			'Connection': 'close',
-			'User-Agent': 'nfctron/eet (+github.com/NFCtron/eet/tree/rewrite)', // TODO: why like this?
+			'User-Agent': 'nfctron/eet (+github.com/NFCtron/eet)',
 			'Content-type': ['application/xml; charset=UTF-8'],
 		},
 		body: message,
@@ -65,9 +66,14 @@ export const sendEETRequest = async (request, options) => {
 
 	});
 
+	// check content-type header for text/xml of application/xml
+	const contentType = rawResponse.headers.get('content-type');
+	if (!(contentType.includes('text/xml') || contentType.includes('application/xml'))) {
+		throw new WrongServerResponse('Unknown content-type', contentType);
+	}
+
 	const xml = await rawResponse.text();
 
-	// TODO: check content type instead assuming XML?
 	const parsed = parseResponseXML(xml);
 
 	const response = extractResponse(parsed);

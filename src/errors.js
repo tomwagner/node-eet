@@ -1,6 +1,6 @@
 "use strict";
 
-
+// server returned error
 export class ResponseServerError extends Error {
 
 	constructor(message, code) {
@@ -13,6 +13,7 @@ export class ResponseServerError extends Error {
 
 }
 
+// response could not be parsed
 export class ResponseParsingError extends Error {
 
 	constructor(message, info) {
@@ -25,7 +26,21 @@ export class ResponseParsingError extends Error {
 
 }
 
+// request could not be parsed
 export class RequestParsingError extends Error {
+
+	constructor(message, info) {
+
+		super(message);
+		this.info = info;
+		Error.captureStackTrace(this, this.constructor);
+
+	}
+
+}
+
+// server sent wrong or unexpected response
+export class WrongServerResponse extends Error {
 
 	constructor(message, info) {
 
