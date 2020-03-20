@@ -195,8 +195,8 @@ test('parseResponseXML correct', async t => {
 		uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
 		bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
 		fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		test: true,
-		date: new Date('2020-03-05T19:56:02+01:00'),
+		test: 'true',
+		datPrij: '2020-03-05T19:56:02+01:00',
 	};
 
 	t.deepEqual(xml.extractResponse(parsed), expected);

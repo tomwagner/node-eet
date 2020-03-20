@@ -176,6 +176,8 @@ export const parseResponseXML = (xml) => {
 			attributeNamePrefix: "_",
 			ignoreAttributes: false,
 			ignoreNameSpace: true,
+			parseNodeValue: false,
+			parseAttributeValue: false,
 		};
 
 		return parser.parse(xml, options);
@@ -189,6 +191,28 @@ export const parseResponseXML = (xml) => {
 
 };
 
+const getChild = (obj, childName, debugPath) => {
+
+	const element = obj?.[childName];
+	if (!isDefined(element)) {
+		throw new WrongServerResponse('XML element not defined: ' + debugPath);
+	}
+
+	return element;
+
+};
+
+const getAttribute = (obj, attrName, debugPath) => {
+
+	const attribute = obj?.['_' + attrName];
+	if (!isDefined(attribute)) {
+		throw new WrongServerResponse('XML attribute not defined: ' + debugPath);
+	}
+
+	return attribute;
+
+};
+
 /**
  * Transform XML DOM into data object
  * @param parsed {object}
@@ -198,59 +222,75 @@ export const parseResponseXML = (xml) => {
  */
 export const extractResponse = parsed => {
 
-	try {
+	const envelope = getChild(parsed, 'Envelope', 'Envelope');
+	const body = getChild(envelope, 'Body', 'Envelope>Body');
+	const odpoved = getChild(body, 'Odpoved', 'Envelope>Body>Odpoved');
 
-		const header = parsed['Envelope']['Body']['Odpoved']['Hlavicka'];
-		const body = parsed['Envelope']['Body']['Odpoved']['Potvrzeni'];
-
-		const data = {
-			uuid: header['_uuid_zpravy'],
-			bkp: header['_bkp'],
-			date: new Date(header['_dat_prij']),
-			test: body['_test'] === 'true',
-			fik: body['_fik'],
-		};
-
-		// Warning(s) can be part of message
-		const warnings = parsed['Envelope']['Body']['Odpoved']['Varovani'];
-		if (isDefined(warnings)) {
-
-			if (Array.isArray(warnings)) {
-
-				// Multiple warnings in an array
-				data.warnings = warnings
-					.map((warning) => {
-						return {
-							message: warning['#text'],
-							code: warning['_kod_varov'],
-						}
-					});
-			}
-			else {
-
-				// Make array from single warning
-				data.warnings = [{
-					message: warnings['#text'],
-					code: warnings['_kod_varov'],
-				}];
-			}
-		}
-
-		return data;
-
-	} catch (e) {
-
-		// Try to parse error message from XML
-		throw new ResponseServerError(
-			parsed['Envelope']['Body']['Odpoved']['Chyba']['#text'],
-			parsed['Envelope']['Body']['Odpoved']['Chyba']['_kod']);
-
+	// try to parse error message from XML, not failing if not present
+	const chyba = odpoved['Chyba'];
+	if (isDefined(chyba)) {
+		throw new ResponseServerError(chyba['#text'], chyba['_kod']);
 	}
+
+	const hlavicka = getChild(odpoved, 'Hlavicka', 'Envelope>Body>Odpoved>Hlavicka');
+
+	const uuid = getAttribute(hlavicka, 'uuid_zpravy', 'Envelope>Body>Odpoved>Hlavicka:uuid_zpravy');
+	const bkp = getAttribute(hlavicka, 'bkp', 'Envelope>Body>Odpoved>Hlavicka:bkp');
+	const datPrij = getAttribute(hlavicka, 'dat_prij', 'Envelope>Body>Odpoved>Hlavicka:dat_prij');
+
+	const potvrzeni = getChild(odpoved, 'Potvrzeni', 'Envelope>Body>Odpoved>Potvrzeni');
+
+	const test = getAttribute(potvrzeni, 'test', 'Envelope>Body>Odpoved>Potvrzeni:test');
+	const fik = getAttribute(potvrzeni, 'fik', 'Envelope>Body>Odpoved>Potvrzeni:fik');
+
+	const data = {
+		uuid,
+		bkp,
+		datPrij,
+		test,
+		fik,
+	};
+
+	// warning(s) can be part of message
+	const varovani = odpoved['Varovani'];
+	if (isDefined(varovani)) {
+
+		if (Array.isArray(varovani)) {
+
+			// multiple warnings in an array
+			data.warnings = varovani
+				.map((warning) => {
+
+					const message = getChild(warning, '#text', 'Envelope>Body>Odpoved>Varovani');
+					const code = getAttribute(warning, 'kod_varov', 'Envelope>Body>Odpoved>Varovani:kod_varov');
+
+					return {
+						message,
+						code,
+					};
+
+				});
+		}
+		else {
+
+			const message = getChild(varovani, '#text', 'Envelope>Body>Odpoved>Varovani');
+			const code = getAttribute(varovani, 'kod_varov', 'Envelope>Body>Odpoved>Varovani:kod_varov');
+
+			// make array from single warning
+			data.warnings = [{
+				message,
+				code,
+			}];
+		}
+	}
+
+	return data;
 
 };
 
 // TODO: remove Promise and finish (check bkp and option.playground too)
-export const validateSOAPSignature = xml => {
+export const validateSOAPSignature = parsed => {
+
 	// TODO: validate digital signature here
 	return xml;
 };
