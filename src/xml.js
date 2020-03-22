@@ -19,7 +19,6 @@ import fetch from 'node-fetch';
  * @returns {string} XML tag in canonical form
  */
 export const serializeXMLElement = (tagName, attributes) =>
-
 	// found to be the fastest way to sort attributes
 	// see benchmark: https://github.com/NFCtron/eet/commit/b628cb5a42d063f531ea1fe19f62ed3f54d7a4a0
 	`<${tagName} ${
@@ -27,14 +26,13 @@ export const serializeXMLElement = (tagName, attributes) =>
 			.sort()
 			.map(key => `${key}="${attributes[key]}"`)
 			.join(' ')}></${tagName}>`
-
 ;
 
 /**
  * Generates data for XML element KontrolniKody
  * @param pkp {string} PKP
  * @param bkp {string} BKP
- * @returns {string} canonical TODO: expand the desc of the return value
+ * @returns {string} KontrolniKody tag in canonical form
  */
 export const serializeKontrolniKody = ({ pkp, bkp }) =>
 	'<KontrolniKody>' +
@@ -49,7 +47,7 @@ export const serializeKontrolniKody = ({ pkp, bkp }) =>
  * @param data {object}
  * @param pkp {string}
  * @param bkp {string}
- * @returns {string} canonical TODO: expand the desc of the return value
+ * @returns {string} soap:Body tag in canonical form
  */
 export const serializeSoapBody = ({ header, data, pkp, bkp }) =>
 	'<soap:Body xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" id="Body">' +
@@ -64,7 +62,7 @@ export const serializeSoapBody = ({ header, data, pkp, bkp }) =>
 /**
  * Generate body signature for XML element SignedInfo
  * @param digest {string} a SHA256 hash of body encoded as base64 string
- * @returns {string} canonical
+ * @returns {string} SignedInfo tag in canonical form
  */
 export const serializeSignedInfo = digest =>
 	'<SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#">' +
@@ -83,7 +81,7 @@ export const serializeSignedInfo = digest =>
 
 /**
  * Generates full SOAP envelope with WSSecurity signature
- * @returns {string}
+ * @returns {string} soap:Envelope tag in canonical form
  */
 export const serializeSoapEnvelope = ({ header, data, pkp, bkp, privateKey, certificate }) => {
 
@@ -123,7 +121,6 @@ export const serializeSoapEnvelope = ({ header, data, pkp, bkp, privateKey, cert
  */
 export const parseResponseXML = (xml) => {
 
-
 	const parsingError = parser.validate(xml);
 
 	if (parsingError === true) {
@@ -140,9 +137,7 @@ export const parseResponseXML = (xml) => {
 
 	}
 	else {
-
 		throw new ResponseParsingError('Error parsing XML', parsingError);
-
 	}
 
 };
