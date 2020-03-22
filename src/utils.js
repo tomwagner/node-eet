@@ -41,6 +41,7 @@ export const UUID_V4_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{
 export const CZ_VAT_ID_PATTERN = /^CZ[0-9]{8,10}$/;
 export const STRING_20_PATTERN = /^[0-9a-zA-Z.,:;/#\-_ ]{1,20}$/;
 export const STRING_25_PATTERN = /^[0-9a-zA-Z.,:;/#\-_ ]{1,25}$/;
+export const FIK_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}-[0-9a-fA-F]{2}$/;
 
 export const validateUuidV4 = value => typeof value == 'string' && UUID_V4_PATTERN.test(value);
 
@@ -53,3 +54,7 @@ export const validateIdPokl = value => typeof value == 'string' && STRING_20_PAT
 export const validatePoradCis = value => typeof value == 'string' && STRING_25_PATTERN.test(value);
 
 export const validateAmount = value => Number.isInteger(value) && value > -10000000000 && value < 10000000000;
+
+export const validateFik = value => typeof value == 'string' && FIK_PATTERN.test(value);
+
+export const validateDate = value => typeof value == 'string' && !isNaN(Date.parse(value));

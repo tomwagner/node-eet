@@ -2,7 +2,7 @@
 
 import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
-import { extractResponse, fetchXml, parseResponseXML, serializeSoapEnvelope } from './xml';
+import { extractResponse, fetchXml, parseResponseXML, serializeSoapEnvelope, validateResponse } from './xml';
 import { isDefined } from './utils';
 import { ResponseParsingError } from './errors';
 
@@ -71,6 +71,12 @@ export const sendEETRequest = async (request, options) => {
 		const parsed = parseResponseXML(xml);
 
 		const response = extractResponse(parsed);
+
+		validateResponse({
+			reqUuid: header.uuid_zpravy,
+			reqBkp: bkp,
+			reqPlayground: options.playground.toString(),
+		}, response);
 
 		if (options.measureResponseTime) {
 			// save response timeout in milliseconds

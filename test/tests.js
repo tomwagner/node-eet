@@ -6,8 +6,9 @@ import * as crypto from '../src/crypto';
 import * as utils from '../src/utils';
 import * as schema from '../src/schema';
 import * as errors from '../src/errors';
-import { RequestParsingError, ResponseServerError } from '../src/errors';
+import { RequestParsingError, ResponseServerError, WrongServerResponse } from '../src/errors';
 import * as xml from '../src/xml';
+import { validateResponse } from '../src/xml';
 import * as eet from '../src/index';
 
 
@@ -158,6 +159,15 @@ test('validateAmount', t => {
 	t.falsy(utils.validateAmount('1000.00'));
 	t.falsy(utils.validateAmount('1000,00'));
 	t.falsy(utils.validateAmount('test'));
+
+});
+
+test('validateDate', t => {
+
+	t.truthy(utils.validateDate('2020-03-05T19:56:02+01:00'));
+	t.falsy(utils.validateAmount('1234-03-05T19:56:02+01:00'));
+	t.falsy(utils.validateDate('2020-03-50T19:56:02+01:00'));
+	t.falsy(utils.validateDate('yesterday'));
 
 });
 
@@ -443,6 +453,156 @@ test('sendEETRequest wrong certificate', async t => {
 	t.not(error.bkp, undefined);
 	t.not(error.pkp, undefined);
 	t.log('Error:', error);
+
+});
+
+test('validateResponse correct', t => {
+
+	t.notThrows(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'true',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}));
+
+});
+
+test('validateResponse missing field', t => {
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'true',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			test: 'true',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'true',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'true',
+			datPrij: '2020-03-05T19:56:02+01:00',
+		}), { instanceOf: WrongServerResponse });
+
+});
+
+test('validateResponse invalid field', t => {
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2900000',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'true',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c00000',
+			test: 'true',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'false',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'true',
+			datPrij: 'today',
+			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		}), { instanceOf: WrongServerResponse });
+
+	t.throws(() => validateResponse({
+			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			reqBkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			reqPlayground: 'true',
+		},
+		{
+			uuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
+			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+			test: 'true',
+			datPrij: '2020-03-05T19:56:02+01:00',
+			fik: 'abc123',
+		}), { instanceOf: WrongServerResponse });
 
 });
 

@@ -1,7 +1,7 @@
 "use strict";
 
 import parser from 'fast-xml-parser';
-import { isDefined } from './utils';
+import { isDefined, validateDate, validateFik } from './utils';
 import { hashSha256Base64, removePkcsHeader, signSha256Base64 } from './crypto';
 import { ResponseParsingError, ResponseServerError, WrongServerResponse } from './errors';
 import fetch from 'node-fetch';
@@ -236,6 +236,36 @@ export const extractResponse = parsed => {
 	}
 
 	return data;
+
+};
+
+/**
+ * Validate incoming response against sent request
+ * UUID, BKP, test must be same in both response and request
+ * datPrij and FIK must be valid
+ * @throws WrongServerResponse
+ */
+export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuid, bkp, datPrij, test, fik }) => {
+
+	if (!isDefined(bkp) || reqUuid !== uuid) {
+		throw new WrongServerResponse(`UUID in response: ${uuid} is not same as sent: ${reqUuid}`);
+	}
+
+	if (!isDefined(bkp) || reqBkp !== bkp) {
+		throw new WrongServerResponse(`BKP in response: ${bkp} is not same as sent: ${reqBkp}`);
+	}
+
+	if (!isDefined(datPrij) || !validateDate(datPrij)) {
+		throw new WrongServerResponse(`dat_prij in response is invalid: ${datPrij}`);
+	}
+
+	if (!isDefined(test) || reqPlayground !== test) {
+		throw new WrongServerResponse(`test in response: ${test} is not same as sent: ${reqPlayground}`);
+	}
+
+	if (!isDefined(fik) || !validateFik(fik)) {
+		throw new WrongServerResponse(`FIK in response is invalid: ${fik}`);
+	}
 
 };
 
