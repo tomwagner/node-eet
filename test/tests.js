@@ -6,7 +6,6 @@ import * as crypto from '../src/crypto';
 import * as utils from '../src/utils';
 import * as schema from '../src/schema';
 import * as errors from '../src/errors';
-import { RequestParsingError, ResponseServerError, WrongServerResponse } from '../src/errors';
 import * as xml from '../src/xml';
 import { validateResponse } from '../src/xml';
 import * as eet from '../src/index';
@@ -88,7 +87,7 @@ test('parseRequest', t => {
 });
 
 test('parseRequest null', t => {
-	t.throws(() => schema.parseRequest(null), { instanceOf: RequestParsingError });
+	t.throws(() => schema.parseRequest(null), { instanceOf: errors.RequestParsingError });
 });
 
 test('parseRequest valid', t => {
@@ -114,7 +113,7 @@ test('parseRequest wrong type', t => {
 		poradCis: '2016-0001s',
 		datTrzby: new Date(),
 		celkTrzba: 'abc',
-	}), { instanceOf: RequestParsingError });
+	}), { instanceOf: errors.RequestParsingError });
 
 });
 
@@ -126,7 +125,7 @@ test('parseRequest missing required', t => {
 		poradCis: '2016-0001s',
 		datTrzby: new Date(),
 		celkTrzba: 1000,
-	}), { instanceOf: RequestParsingError });
+	}), { instanceOf: errors.RequestParsingError });
 
 });
 
@@ -176,6 +175,22 @@ test('serializeKontrolniKody', t => {
 	const expected = `<KontrolniKody><pkp cipher="RSA2048" digest="SHA256" encoding="base64">${TEST_PKP}</pkp><bkp digest="SHA1" encoding="base16">${TEST_BKP}</bkp></KontrolniKody>`;
 
 	t.is(xml.serializeKontrolniKody({ pkp: TEST_PKP, bkp: TEST_BKP }), expected);
+
+});
+
+test('getChild', t => {
+
+	t.notThrows(() => xml.getChild({ key: 'value' }, 'key', 'path'));
+	t.throws(() => xml.getChild({ key: 'value' }, 'kei', 'path'), { instanceOf: errors.WrongServerResponse });
+	t.throws(() => xml.getChild(undefined, 'key', 'path'), { instanceOf: errors.WrongServerResponse });
+
+});
+
+test('getAttribute', t => {
+
+	t.notThrows(() => xml.getAttribute({ _key: 'value' }, 'key', 'path'));
+	t.throws(() => xml.getAttribute({ _key: 'value' }, 'kei', 'path'), { instanceOf: errors.WrongServerResponse });
+	t.throws(() => xml.getAttribute(undefined, 'key', 'path'), { instanceOf: errors.WrongServerResponse });
 
 });
 
@@ -313,7 +328,7 @@ test('parseResponseXML ResponseServerError', async t => {
 	const error = t.throws(() => {
 			xml.extractResponse(parsed);
 		},
-		{ instanceOf: ResponseServerError },
+		{ instanceOf: errors.ResponseServerError },
 	);
 	t.is(error.code, '5');
 	t.is(error.message, 'Neplatny kontrolni bezpecnostni kod poplatnika (BKP)');
@@ -383,7 +398,7 @@ test('sendEETRequest correct', async t => {
 
 });
 
-test('sendEETRequest correct all fields', async t => {
+test('sendEETRequest correct all fields playground', async t => {
 
 	const data = {
 		prvniZaslani: true,
@@ -414,6 +429,7 @@ test('sendEETRequest correct all fields', async t => {
 		playground: true,
 		privateKey: PRIVATE_KEY,
 		certificate: CERTIFICATE,
+		timeout: 8000,
 		userAgent: 'DummyUserAgent/1.0',
 	};
 
@@ -447,12 +463,42 @@ test('sendEETRequest wrong certificate', async t => {
 		offline: false,
 	};
 
-	const error = await t.throwsAsync(eet.sendEETRequest(data, options));
-	t.assert(error instanceof errors.ResponseServerError);
+	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: errors.ResponseServerError });
+
 	t.is(error.code, '4');
 	t.not(error.bkp, undefined);
 	t.not(error.pkp, undefined);
-	t.log('Error:', error);
+
+	t.log('Error:', error.message);
+
+});
+
+test('sendEETRequest production dummy certificate', async t => {
+
+	const data = {
+		prvniZaslani: true,
+		overeni: false,
+		dicPopl: 'CZ1212121218',
+		idPokl: '/5546/RO24',
+		poradCis: '0/6460/ZQ42',
+		datTrzby: new Date(),
+		celkTrzba: 3411300,
+		idProvoz: 273,
+	};
+
+	const options = {
+		playground: false,
+		overeni: true,
+		privateKey: PRIVATE_KEY, // cannot sign message in production mode
+		certificate: CERTIFICATE,
+		measureResponseTime: true,
+	};
+
+	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: errors.ResponseServerError });
+
+	t.is(error.code, '4');
+
+	t.log('Error:', error.message);
 
 });
 
@@ -485,7 +531,7 @@ test('validateResponse missing field', t => {
 			test: 'true',
 			datPrij: '2020-03-05T19:56:02+01:00',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -497,7 +543,7 @@ test('validateResponse missing field', t => {
 			test: 'true',
 			datPrij: '2020-03-05T19:56:02+01:00',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -509,7 +555,7 @@ test('validateResponse missing field', t => {
 			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
 			datPrij: '2020-03-05T19:56:02+01:00',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -521,7 +567,7 @@ test('validateResponse missing field', t => {
 			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
 			test: 'true',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -533,7 +579,7 @@ test('validateResponse missing field', t => {
 			bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
 			test: 'true',
 			datPrij: '2020-03-05T19:56:02+01:00',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 });
 
@@ -550,7 +596,7 @@ test('validateResponse invalid field', t => {
 			test: 'true',
 			datPrij: '2020-03-05T19:56:02+01:00',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -563,7 +609,7 @@ test('validateResponse invalid field', t => {
 			test: 'true',
 			datPrij: '2020-03-05T19:56:02+01:00',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -576,7 +622,7 @@ test('validateResponse invalid field', t => {
 			test: 'false',
 			datPrij: '2020-03-05T19:56:02+01:00',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -589,7 +635,7 @@ test('validateResponse invalid field', t => {
 			test: 'true',
 			datPrij: 'today',
 			fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 	t.throws(() => validateResponse({
 			reqUuid: 'ae0af488-5115-48c0-8d10-0861a2921981',
@@ -602,7 +648,7 @@ test('validateResponse invalid field', t => {
 			test: 'true',
 			datPrij: '2020-03-05T19:56:02+01:00',
 			fik: 'abc123',
-		}), { instanceOf: WrongServerResponse });
+		}), { instanceOf: errors.WrongServerResponse });
 
 });
 
@@ -634,6 +680,7 @@ test('getWarnings wrong datTrzby', async t => {
 
 	t.not(fik, undefined);
 	t.deepEqual(warnings, expected);
+
 	t.log('Warning:', warnings[0].message);
 
 });

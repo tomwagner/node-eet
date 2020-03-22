@@ -60,7 +60,6 @@ export const sendEETRequest = async (request, options) => {
 
 			// the following properties are node-fetch extensions
 			follow: 0, // maximum redirect count. 0 to not follow redirect
-			/* istanbul ignore next */
 			timeout: isDefined(options.timeout) ? options.timeout : 10000,
 			size: 65536, // (= 64 KB) maximum response size in bytes, unofficial
 

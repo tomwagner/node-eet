@@ -142,7 +142,7 @@ export const parseResponseXML = (xml) => {
 
 };
 
-const getChild = (obj, childName, debugPath) => {
+export const getChild = (obj, childName, debugPath) => {
 
 	const element = obj?.[childName];
 	if (!isDefined(element)) {
@@ -153,7 +153,7 @@ const getChild = (obj, childName, debugPath) => {
 
 };
 
-const getAttribute = (obj, attrName, debugPath) => {
+export const getAttribute = (obj, attrName, debugPath) => {
 
 	const attribute = obj?.['_' + attrName];
 	if (!isDefined(attribute)) {
@@ -269,13 +269,6 @@ export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuid, bkp
 
 };
 
-// TODO: remove Promise and finish (check bkp and option.playground too)
-export const validateSOAPSignature = parsed => {
-
-	// TODO: validate digital signature here
-	return xml;
-};
-
 /**
  * Fetch URL and return XML response
  * @param url {string}
@@ -288,6 +281,8 @@ export const fetchXml = async (url, options) => {
 
 	// check content-type header for text/xml of application/xml
 	const contentType = response.headers.get('content-type');
+
+	/* istanbul ignore next */
 	if (!(contentType.includes('text/xml') || contentType.includes('application/xml'))) {
 		throw new WrongServerResponse('Unknown content-type: ' + contentType);
 	}

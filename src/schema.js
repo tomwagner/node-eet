@@ -7,10 +7,10 @@ import {
 	convertDateToString,
 	isDefined,
 	validateAmount,
+	validateCzVatId,
 	validateIdPokl,
 	validateIdProvoz,
 	validatePoradCis,
-	validateCzVatId,
 	validateUuidV4,
 } from './utils';
 import { RequestParsingError } from './errors';
@@ -212,7 +212,7 @@ export const parseRequest = request => {
 		name,
 		required,
 		getDefault,
-		validate = () => true,
+		validate,
 		format = value => value
 	}] of Object.entries(SCHEMA)) {
 
@@ -230,10 +230,6 @@ export const parseRequest = request => {
 
 		if (!validate(value)) {
 			throw new RequestParsingError(`Validation failed for ${key}. '${value}' given.`, value);
-		}
-
-		if (!result[type]) {
-			result[type] = {};
 		}
 
 		result[type][name] = format(value);
