@@ -182,7 +182,6 @@ test('getChild', t => {
 
 	t.notThrows(() => xml.getChild({ key: 'value' }, 'key', 'path'));
 	t.throws(() => xml.getChild({ key: 'value' }, 'kei', 'path'), { instanceOf: errors.WrongServerResponse });
-	t.throws(() => xml.getChild(undefined, 'key', 'path'), { instanceOf: errors.WrongServerResponse });
 
 });
 
@@ -190,7 +189,6 @@ test('getAttribute', t => {
 
 	t.notThrows(() => xml.getAttribute({ _key: 'value' }, 'key', 'path'));
 	t.throws(() => xml.getAttribute({ _key: 'value' }, 'kei', 'path'), { instanceOf: errors.WrongServerResponse });
-	t.throws(() => xml.getAttribute(undefined, 'key', 'path'), { instanceOf: errors.WrongServerResponse });
 
 });
 

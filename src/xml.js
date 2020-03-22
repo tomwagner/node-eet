@@ -144,7 +144,7 @@ export const parseResponseXML = (xml) => {
 
 export const getChild = (obj, childName, debugPath) => {
 
-	const element = obj?.[childName];
+	const element = obj[childName];
 	if (!isDefined(element)) {
 		throw new WrongServerResponse('XML element not defined: ' + debugPath);
 	}
@@ -155,7 +155,7 @@ export const getChild = (obj, childName, debugPath) => {
 
 export const getAttribute = (obj, attrName, debugPath) => {
 
-	const attribute = obj?.['_' + attrName];
+	const attribute = obj['_' + attrName];
 	if (!isDefined(attribute)) {
 		throw new WrongServerResponse('XML attribute not defined: ' + debugPath);
 	}
@@ -172,6 +172,10 @@ export const getAttribute = (obj, attrName, debugPath) => {
  * @throws {ResponseServerError}
  */
 export const extractResponse = parsed => {
+
+	if (!isDefined(parsed)) {
+		throw new WrongServerResponse('XML response empty');
+	}
 
 	const envelope = getChild(parsed, 'Envelope', 'Envelope');
 	const body = getChild(envelope, 'Body', 'Envelope>Body');
