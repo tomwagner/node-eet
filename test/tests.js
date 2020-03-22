@@ -404,6 +404,7 @@ test('sendEETRequest correct all fields', async t => {
 		playground: true,
 		privateKey: PRIVATE_KEY,
 		certificate: CERTIFICATE,
+		userAgent: 'DummyUserAgent/1.0',
 	};
 
 	const { response: { fik, warnings } } = await eet.sendEETRequest(data, options);

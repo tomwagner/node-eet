@@ -30,6 +30,7 @@ export const sendEETRequest = async (request, options) => {
 
 	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 	const startTime = options.measureResponseTime ? process.hrtime.bigint() : undefined;
+	const userAgent = isDefined(options.userAgent) ? options.userAgent : 'nfctron/eet (+github.com/NFCtron/eet)';
 
 	try {
 
@@ -50,7 +51,7 @@ export const sendEETRequest = async (request, options) => {
 				'Accept-Encoding': 'gzip,deflate',
 				'Accept': 'application/xml, text/xml',
 				'Connection': 'close',
-				'User-Agent': 'nfctron/eet (+github.com/NFCtron/eet)',
+				'User-Agent': userAgent,
 				'Content-type': ['application/xml; charset=UTF-8'],
 			},
 			body: message,
@@ -62,7 +63,6 @@ export const sendEETRequest = async (request, options) => {
 			/* istanbul ignore next */
 			timeout: isDefined(options.timeout) ? options.timeout : 10000,
 			size: 65536, // (= 64 KB) maximum response size in bytes, unofficial
-			// TODO: consider supporting custom agent option
 
 		};
 
