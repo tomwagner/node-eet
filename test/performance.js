@@ -55,30 +55,30 @@ for (let i = 0; i < TEST_CASES; i++) {
 	const time = process.hrtime();
 	const id = randomBytes(5).toString('hex');
 
-		test.push(
-			sendEETRequest({
-				...items,
-				poradCis: `${id}-${i.toString()}`,
-			}, options)
-				.then(({ response, request }) => {
+	const request = items;
+	request[poradCis] = `${id}-${i.toString()}`;
 
-					const diff = process.hrtime(time);
+	test.push(
+		sendEETRequest(request, options)
+			.then(({ response }) => {
 
-					const elapsedMilliseconds = (diff[0] * 1000) + (diff[1] / 1000 / 1000);
+				const diff = process.hrtime(time);
 
-					const processTime = Math.round(elapsedMilliseconds * 100) / 100 - response.responseTime;
+				const elapsedMilliseconds = (diff[0] * 1000) + (diff[1] / 1000 / 1000);
 
-					timing.push(processTime);
+				const processTime = Math.round(elapsedMilliseconds * 100) / 100 - response.responseTime;
 
-					//console.log('Processed in', elapsedMilliseconds, response);
+				timing.push(processTime);
 
-				})
-				.catch(err => {
+				//console.log('Processed in', elapsedMilliseconds, response);
 
-					console.log(err);
+			})
+			.catch(err => {
 
-				}),
-		);
+				console.log(err);
+
+			}),
+	);
 
 }
 

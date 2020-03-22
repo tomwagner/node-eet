@@ -6,6 +6,7 @@ import * as crypto from '../src/crypto';
 import * as utils from '../src/utils';
 import * as schema from '../src/schema';
 import * as errors from '../src/errors';
+import { WrongServerResponse } from '../src/errors';
 import * as xml from '../src/xml';
 import { validateResponse } from '../src/xml';
 import * as eet from '../src/index';
@@ -189,6 +190,13 @@ test('getAttribute', t => {
 
 	t.notThrows(() => xml.getAttribute({ _key: 'value' }, 'key', 'path'));
 	t.throws(() => xml.getAttribute({ _key: 'value' }, 'kei', 'path'), { instanceOf: errors.WrongServerResponse });
+
+});
+
+test('extractResponse empty', t => {
+
+	t.throws(() => xml.extractResponse({}), { instanceOf: WrongServerResponse });
+	t.throws(() => xml.extractResponse(undefined), { instanceOf: WrongServerResponse });
 
 });
 
