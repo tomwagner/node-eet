@@ -121,7 +121,10 @@ export const serializeSoapEnvelope = ({ header, data, pkp, bkp, privateKey, cert
  */
 export const parseResponseXML = (xml) => {
 
-	try {
+	const parsingError = parser.validate(xml);
+
+	if (parsingError === true) {
+
 		const options = {
 			attributeNamePrefix: "_",
 			ignoreAttributes: false,
@@ -130,10 +133,16 @@ export const parseResponseXML = (xml) => {
 			parseAttributeValue: false,
 		};
 
-		return parser.parse(xml, options, true);
+		return parser.parse(xml, options);
 
-	} catch (error) {
-		throw new ResponseParsingError('Error parsing XML: ' + error.message);
+	}
+	else {
+
+		const error = new ResponseParsingError(parsingError.msg);
+		error.code = parsingError.code;
+		error.line = parsingError.line;
+		throw error;
+
 	}
 
 };
