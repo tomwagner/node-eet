@@ -189,17 +189,19 @@ export const extractResponse = parsed => {
 
 	const hlavicka = getChild(odpoved, 'Hlavicka', 'Envelope>Body>Odpoved>Hlavicka');
 
-	const uuid = getAttribute(hlavicka, 'uuid_zpravy', 'Envelope>Body>Odpoved>Hlavicka:uuid_zpravy');
+	const uuidZpravy = getAttribute(hlavicka, 'uuid_zpravy', 'Envelope>Body>Odpoved>Hlavicka:uuid_zpravy');
 	const bkp = getAttribute(hlavicka, 'bkp', 'Envelope>Body>Odpoved>Hlavicka:bkp');
 	const datPrij = getAttribute(hlavicka, 'dat_prij', 'Envelope>Body>Odpoved>Hlavicka:dat_prij');
 
 	const potvrzeni = getChild(odpoved, 'Potvrzeni', 'Envelope>Body>Odpoved>Potvrzeni');
 
+	// TODO: test might be omitted if equal to false
 	const test = getAttribute(potvrzeni, 'test', 'Envelope>Body>Odpoved>Potvrzeni:test');
+
 	const fik = getAttribute(potvrzeni, 'fik', 'Envelope>Body>Odpoved>Potvrzeni:fik');
 
 	const data = {
-		uuid,
+		uuidZpravy,
 		bkp,
 		datPrij,
 		test,
@@ -249,25 +251,25 @@ export const extractResponse = parsed => {
  * datPrij and FIK must be valid
  * @throws WrongServerResponse
  */
-export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuid, bkp, datPrij, test, fik }) => {
+export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZpravy, bkp, datPrij, test, fik }) => {
 
-	if (!isDefined(bkp) || reqUuid !== uuid) {
-		throw new WrongServerResponse(`UUID in response: ${uuid} is not same as sent: ${reqUuid}`);
+	if (reqUuid !== uuidZpravy) {
+		throw new WrongServerResponse(`UUID in response: ${uuidZpravy} is not same as sent: ${reqUuid}`);
 	}
 
-	if (!isDefined(bkp) || reqBkp !== bkp) {
+	if (reqBkp !== bkp) {
 		throw new WrongServerResponse(`BKP in response: ${bkp} is not same as sent: ${reqBkp}`);
 	}
 
-	if (!isDefined(datPrij) || !validateDate(datPrij)) {
+	if (!validateDate(datPrij)) {
 		throw new WrongServerResponse(`dat_prij in response is invalid: ${datPrij}`);
 	}
 
-	if (!isDefined(test) || reqPlayground !== test) {
+	if (reqPlayground !== test) {
 		throw new WrongServerResponse(`test in response: ${test} is not same as sent: ${reqPlayground}`);
 	}
 
-	if (!isDefined(fik) || !validateFik(fik)) {
+	if (!validateFik(fik)) {
 		throw new WrongServerResponse(`FIK in response is invalid: ${fik}`);
 	}
 
