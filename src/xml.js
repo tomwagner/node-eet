@@ -115,7 +115,7 @@ export const serializeSoapEnvelope = ({ header, data, pkp, bkp, privateKey, cert
 /**
  * Parse XML response into DOM
  * @param xml {string}
- * @returns {Promise}
+ * @returns {object}
  * @throws {ResponseParsingError}
  * @throws {ResponseServerError}
  */
