@@ -1,6 +1,6 @@
 "use strict";
 
-const { sendEETRequest } = require('../dist/index');
+const { sendEETRequest } = require('../src/index');
 
 const fs = require('fs');
 
