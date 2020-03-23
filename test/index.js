@@ -151,11 +151,41 @@ test('sendEETRequest warning', async t => {
 
 });
 
-test('sendEETRequest production dummy certificate', async t => {
+test('sendEETRequest overeni', async t => {
 
 	const data = {
 		prvniZaslani: true,
-		overeni: false,
+		overeni: true,
+		dicPopl: 'CZ1212121218',
+		idPokl: '/5546/RO24',
+		poradCis: '0/6460/ZQ42',
+		datTrzby: new Date(),
+		celkTrzba: 3411300,
+		idProvoz: 273,
+	};
+
+	const options = {
+		playground: true,
+		privateKey: PRIVATE_KEY, // cannot sign message in production mode
+		certificate: CERTIFICATE,
+		measureResponseTime: true,
+	};
+
+	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: errors.ResponseServerError });
+
+	t.is(error.code, '0');
+	t.is(error.message, 'Datovou zpravu evidovane trzby v overovacim modu se podarilo zpracovat');
+
+	t.log('Error:', error.message);
+
+});
+
+
+test('sendEETRequest production', async t => {
+
+	const data = {
+		prvniZaslani: true,
+		overeni: true,
 		dicPopl: 'CZ1212121218',
 		idPokl: '/5546/RO24',
 		poradCis: '0/6460/ZQ42',
@@ -166,7 +196,6 @@ test('sendEETRequest production dummy certificate', async t => {
 
 	const options = {
 		playground: false,
-		overeni: true,
 		privateKey: PRIVATE_KEY, // cannot sign message in production mode
 		certificate: CERTIFICATE,
 		measureResponseTime: true,
