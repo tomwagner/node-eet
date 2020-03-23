@@ -171,9 +171,7 @@ test('parseResponseXML ResponseServerError', async t => {
 
 	const parsed = xml.parseResponseXML(response);
 
-	const error = t.throws(() => {
-			xml.extractResponse(parsed);
-		},
+	const error = t.throws(() => xml.extractResponse(parsed),
 		{ instanceOf: errors.ResponseServerError },
 	);
 	t.is(error.code, '5');
@@ -203,9 +201,7 @@ test('parseResponseXML ResponseParsingError', async t => {
 	<eet:Potvrzeni fik="f741687f-61c8-4672-917a-46bcf8eff62d-fa" test="true" />
 </eet:Odpoved></soap:Bod`;
 
-	const error = t.throws(() => {
-			xml.parseResponseXML(response);
-		},
+	const error = t.throws(() => xml.parseResponseXML(response),
 		{ instanceOf: errors.ResponseParsingError },
 	);
 	t.log('Error:', error.message);
