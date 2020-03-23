@@ -121,10 +121,7 @@ export const serializeSoapEnvelope = ({ header, data, pkp, bkp, privateKey, cert
  */
 export const parseResponseXML = (xml) => {
 
-	const parsingError = parser.validate(xml);
-
-	if (parsingError === true) {
-
+	try {
 		const options = {
 			attributeNamePrefix: "_",
 			ignoreAttributes: false,
@@ -133,11 +130,10 @@ export const parseResponseXML = (xml) => {
 			parseAttributeValue: false,
 		};
 
-		return parser.parse(xml, options);
+		return parser.parse(xml, options, true);
 
-	}
-	else {
-		throw new ResponseParsingError('Error parsing XML', parsingError);
+	} catch (error) {
+		throw new ResponseParsingError('Error parsing XML: ' + error.message);
 	}
 
 };
@@ -184,7 +180,7 @@ export const extractResponse = parsed => {
 	// try to parse error message from XML, not failing if not present
 	const chyba = odpoved['Chyba'];
 	if (isDefined(chyba)) {
-		throw new ResponseServerError(chyba['#text'], chyba['_kod']);
+		throw new ResponseServerError(chyba['#text'].replace('&#8211;', '-'), chyba['_kod']);
 	}
 
 	const hlavicka = getChild(odpoved, 'Hlavicka', 'Envelope>Body>Odpoved>Hlavicka');
