@@ -30,6 +30,8 @@ export const sendEETRequest = async (request, options) => {
 
 	const url = options.playground ? PLAYGROUND_URL : PRODUCTION_URL;
 	const startTime = options.measureResponseTime ? process.hrtime.bigint() : undefined;
+
+	// formatted according to https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
 	const userAgent = isDefined(options.userAgent) ? options.userAgent : 'nfctron/eet (+github.com/NFCtron/eet)';
 
 	try {
