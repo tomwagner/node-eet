@@ -89,6 +89,7 @@ export const sendEETRequest = async (request, options) => {
 		return {
 			request: parsedRequest,
 			response: response,
+			rawResponse: xml,
 		};
 
 	} catch (error) {

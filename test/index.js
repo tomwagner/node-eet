@@ -32,12 +32,13 @@ test('sendEETRequest correct', async t => {
 		measureResponseTime: true,
 	};
 
-	const { response: { fik, warnings, responseTime } } = await eet.sendEETRequest(data, options);
+	const { response: { fik, warnings, responseTime }, rawResponse } = await eet.sendEETRequest(data, options);
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
 	t.deepEqual(warnings, []);
 	t.assert(responseTime > 0);
+	t.assert(rawResponse.length() > 500);
 
 	t.log('FIK:', fik);
 	t.log('responseTime:', Math.round(responseTime), 'ms');
