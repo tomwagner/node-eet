@@ -69,6 +69,7 @@ test('sendEETRequest correct all fields playground', async t => {
 		pouzitZboz3: 31415,
 		urcenoCerpZuct: 42,
 		cerpZuct: -1700,
+		rezim: 1,
 	};
 
 	const options = {
