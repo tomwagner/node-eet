@@ -35,7 +35,7 @@ test('sendEETRequest correct', async t => {
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
-	t.is(warnings, undefined);
+	t.deepEqual(warnings, []);
 	t.assert(responseTime > 0);
 
 	t.log('FIK:', fik);
@@ -82,7 +82,7 @@ test('sendEETRequest correct all fields playground', async t => {
 
 	t.not(fik, undefined);
 	t.is(fik.length, 39);
-	t.is(warnings, undefined);
+	t.deepEqual(warnings, []);
 
 	t.log('FIK:', fik);
 

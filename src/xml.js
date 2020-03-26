@@ -1,7 +1,7 @@
 "use strict";
 
 import parser from 'fast-xml-parser';
-import { isDefined, validateDate, validateFik } from './utils';
+import { convertStringToBool, convertStringToDate, isDefined, validateFik } from './utils';
 import { hashSha256Base64, removePkcsHeader, signSha256Base64 } from './crypto';
 import { ResponseParsingError, ResponseServerError, WrongServerResponse } from './errors';
 import fetch from 'node-fetch';
@@ -182,71 +182,52 @@ export const extractResponse = parsed => {
 		throw new WrongServerResponse('XML response empty');
 	}
 
-	const envelope = getChild(parsed, 'Envelope', 'Envelope');
-	const body = getChild(envelope, 'Body', 'Envelope>Body');
-	const odpoved = getChild(body, 'Odpoved', 'Envelope>Body>Odpoved');
+	let odpoved = parsed['Envelope']?.['Body']?.['Odpoved'];
 
-	// try to parse error message from XML, not failing if not present
-	const chyba = odpoved['Chyba'];
-	if (isDefined(chyba)) {
-		throw new ResponseServerError(chyba['#text'].replace('&#8211;', '-'), chyba['_kod']);
+	if (!isDefined(odpoved)) {
+
+		throw new WrongServerResponse('Response does not contain Envelope>Body>Odpoved');
+
 	}
 
-	const hlavicka = getChild(odpoved, 'Hlavicka', 'Envelope>Body>Odpoved>Hlavicka');
+	const uuidZpravy = odpoved['Hlavicka']?.['_uuid_zpravy'];
+	const bkp = odpoved['Hlavicka']?.['_bkp'];
+	const datPrij = convertStringToDate(odpoved['Hlavicka']?.['_dat_prij']);
 
-	const uuidZpravy = getAttribute(hlavicka, 'uuid_zpravy', 'Envelope>Body>Odpoved>Hlavicka:uuid_zpravy');
-	const bkp = getAttribute(hlavicka, 'bkp', 'Envelope>Body>Odpoved>Hlavicka:bkp');
-	const datPrij = getAttribute(hlavicka, 'dat_prij', 'Envelope>Body>Odpoved>Hlavicka:dat_prij');
+	// test might be omitted if equal to false
+	const test = convertStringToBool(odpoved['Potvrzeni']?.['_test']) ?? 'false';
+	const fik = odpoved['Potvrzeni']?.['_fik'];
 
-	const potvrzeni = getChild(odpoved, 'Potvrzeni', 'Envelope>Body>Odpoved>Potvrzeni');
+	// zero or one error can be included
+	const error = isDefined(odpoved['Chyba'])
+		? { message: odpoved['Chyba']?.['#text'], code: odpoved['Chyba']?.['_kod'] }
+		: undefined;
 
-	// TODO: test might be omitted if equal to false
-	const test = getAttribute(potvrzeni, 'test', 'Envelope>Body>Odpoved>Potvrzeni:test');
+	// zero or one or multiple warnings can be included
+	const warnings = isDefined(odpoved['Varovani'])
+		? (Array.isArray(odpoved['Varovani'])
+				? odpoved['Varovani'].map(warning => (
+					{
+						message: warning['#text'],
+						code: warning['_kod_varov'],
+					}
+				))
+				: [{
+					message: odpoved['Varovani']['#text'],
+					code: odpoved['Varovani']['_kod_varov'],
+				}]
+		)
+		: [];
 
-	const fik = getAttribute(potvrzeni, 'fik', 'Envelope>Body>Odpoved>Potvrzeni:fik');
-
-	const data = {
+	return {
 		uuidZpravy,
 		bkp,
 		datPrij,
 		test,
 		fik,
+		error,
+		warnings,
 	};
-
-	// warning(s) can be part of message
-	const varovani = odpoved['Varovani'];
-	if (isDefined(varovani)) {
-
-		if (Array.isArray(varovani)) {
-
-			// multiple warnings in an array
-			data.warnings = varovani
-				.map((warning) => {
-
-					const message = getChild(warning, '#text', 'Envelope>Body>Odpoved>Varovani');
-					const code = getAttribute(warning, 'kod_varov', 'Envelope>Body>Odpoved>Varovani:kod_varov');
-
-					return {
-						message,
-						code,
-					};
-
-				});
-		}
-		else {
-
-			const message = getChild(varovani, '#text', 'Envelope>Body>Odpoved>Varovani');
-			const code = getAttribute(varovani, 'kod_varov', 'Envelope>Body>Odpoved>Varovani:kod_varov');
-
-			// make array from single warning
-			data.warnings = [{
-				message,
-				code,
-			}];
-		}
-	}
-
-	return data;
 
 };
 
@@ -254,9 +235,14 @@ export const extractResponse = parsed => {
  * Validate incoming response against sent request
  * UUID, BKP, test must be same in both response and request
  * datPrij and FIK must be valid
+ * @throws ResponseServerError
  * @throws WrongServerResponse
  */
-export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZpravy, bkp, datPrij, test, fik }) => {
+export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZpravy, bkp, datPrij, test, fik, error }) => {
+
+	if (isDefined(error)) {
+		throw new ResponseServerError(error.message, error.code);
+	}
 
 	if (reqUuid !== uuidZpravy) {
 		throw new WrongServerResponse(`UUID in response: ${uuidZpravy} is not same as sent: ${reqUuid}`);
@@ -266,7 +252,7 @@ export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZprav
 		throw new WrongServerResponse(`BKP in response: ${bkp} is not same as sent: ${reqBkp}`);
 	}
 
-	if (!validateDate(datPrij)) {
+	if (!isDefined(datPrij)) {
 		throw new WrongServerResponse(`dat_prij in response is invalid: ${datPrij}`);
 	}
 

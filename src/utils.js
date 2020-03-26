@@ -36,6 +36,41 @@ export const convertAmountToString = hundredths => {
 
 };
 
+/**
+ * Converts string to boolean strictly checking for 'true' and 'false', otherwise returns undefined
+ * @param value {string}
+ * @returns {boolean|undefined} true for 'true', false for 'false', undefined otherwise
+ */
+export const convertStringToBool = value => {
+
+	if (value === 'true') {
+		return true;
+	}
+
+	if (value === 'false') {
+		return false;
+	}
+
+	return undefined;
+
+};
+
+/**
+ * Converts string to Date, returns undefined if invalid
+ * @param value {string}
+ * @returns {Date|undefined}
+ */
+export const convertStringToDate = value => {
+
+	const date = new Date(value);
+
+	if (!isDefined(value) || date.toString() === 'Invalid Date' || isNaN(date)) {
+		return undefined;
+	}
+
+	return date;
+};
+
 
 export const UUID_V4_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
 export const CZ_VAT_ID_PATTERN = /^CZ[0-9]{8,10}$/;

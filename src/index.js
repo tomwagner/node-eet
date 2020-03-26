@@ -76,7 +76,7 @@ export const sendEETRequest = async (request, options) => {
 		validateResponse({
 			reqUuid: header.uuid_zpravy,
 			reqBkp: bkp,
-			reqPlayground: options.playground.toString(),
+			reqPlayground: options.playground,
 		}, response);
 
 		if (options.measureResponseTime) {

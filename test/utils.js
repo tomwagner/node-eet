@@ -28,6 +28,26 @@ test('convertAmountToString 0.01', t => {
 	t.is(utils.convertAmountToString(1), '0.01');
 });
 
+test('convertStringToBool', t => {
+
+	t.is(utils.convertStringToBool('true'), true);
+	t.is(utils.convertStringToBool('false'), false);
+	t.is(utils.convertStringToBool('0'), undefined);
+	t.is(utils.convertStringToBool('1'), undefined);
+	t.is(utils.convertStringToBool(''), undefined);
+	t.is(utils.convertStringToBool(undefined), undefined);
+
+});
+
+test('convertStringToDate', t => {
+
+	t.deepEqual(utils.convertStringToDate('2020-03-05T19:56:02+01:00'), new Date('2020-03-05T19:56:02+01:00'));
+	t.is(utils.convertStringToDate('100-03-05T19:56:02+01:00'), undefined);
+	t.is(utils.convertStringToBool('yesterday'), undefined);
+	t.is(utils.convertStringToBool('20200305'), undefined);
+
+});
+
 test('validateVatId', t => {
 	t.truthy(utils.validateCzVatId('CZ1212121218'));
 	t.falsy(utils.validateCzVatId(1212121218));
