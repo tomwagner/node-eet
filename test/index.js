@@ -37,7 +37,7 @@ test('sendEETRequest correct', async t => {
 	t.is(fik.length, 39);
 	t.deepEqual(warnings, []);
 	t.assert(responseTime > 0);
-	t.assert(rawResponse.length() > 500);
+	t.assert(rawResponse.length > 500);
 
 	t.log('FIK:', fik);
 	t.log('responseTime:', Math.round(responseTime), 'ms');
