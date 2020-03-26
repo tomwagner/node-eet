@@ -138,9 +138,9 @@ export const parseResponseXML = (xml) => {
 	}
 	else {
 
-		const error = new ResponseParsingError(parsingError.msg);
-		error.code = parsingError.code;
-		error.line = parsingError.line;
+		const error = new ResponseParsingError(parsingError.err.msg);
+		error.code = parsingError.err.code;
+		error.line = parsingError.err.line;
 		throw error;
 
 	}

@@ -55,7 +55,7 @@ test('parseResponseXML ResponseParsingError', async t => {
 	const error = t.throws(() => xml.parseResponseXML(response),
 		{ instanceOf: errors.ResponseParsingError },
 	);
-	t.log('Error:', error.message);
+	t.log('Error:', error.message, error.code);
 
 });
 
