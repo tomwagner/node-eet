@@ -1,6 +1,6 @@
 "use strict";
 
-const { sendEETRequest } = require('../src/index');
+const { sendEETRequest } = require('../dist/index');
 
 const fs = require('fs');
 
@@ -43,7 +43,7 @@ const items = {
 };
 
 sendEETRequest(items, options)
-	.then(({ request, response }) => {
+	.then(({ response }) => {
 		console.log('ok', response);
 	})
 	.catch(err => {
