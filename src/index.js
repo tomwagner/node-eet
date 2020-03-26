@@ -64,6 +64,7 @@ export const sendEETRequest = async (request, options) => {
 			follow: 0, // maximum redirect count. 0 to not follow redirect
 			timeout: isDefined(options.timeout) ? options.timeout : 10000,
 			size: 65536, // (= 64 KB) maximum response size in bytes, unofficial
+			agent: options.agent, // HTTPS agent, see https://nodejs.org/api/https.html#https_class_https_agent
 
 		};
 

@@ -1,5 +1,6 @@
 "use strict";
 
+import { Agent } from 'https';
 import fs from 'fs';
 import test from 'ava';
 import * as errors from '../src/errors';
@@ -76,6 +77,7 @@ test('sendEETRequest correct all fields playground', async t => {
 		certificate: CERTIFICATE,
 		timeout: 8000,
 		userAgent: 'DummyUserAgent/1.0',
+		agent: new Agent(),
 	};
 
 	const { response: { fik, warnings } } = await eet.sendEETRequest(data, options);
