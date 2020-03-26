@@ -189,7 +189,7 @@ export const SCHEMA = {
 		name: 'rezim',
 		required: true,
 		getDefault: () => 0,
-		validate: value => value !== 0 || value !== 1,
+		validate: value => value === 0 || value === 1,
 		format: value => value.toString(),
 	},
 };
