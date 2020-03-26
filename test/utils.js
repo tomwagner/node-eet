@@ -80,11 +80,16 @@ test('validateAmount', t => {
 
 });
 
-test('validateDate', t => {
+test('validateDateString', t => {
 
-	t.truthy(utils.validateDate('2020-03-05T19:56:02+01:00'));
-	t.falsy(utils.validateAmount('1234-03-05T19:56:02+01:00'));
-	t.falsy(utils.validateDate('2020-03-50T19:56:02+01:00'));
-	t.falsy(utils.validateDate('yesterday'));
+	t.truthy(utils.validateDateString(utils.convertDateToString(new Date())));
+	t.truthy(utils.validateDateString('2020-03-05T19:56:02+01:00'));
+	t.truthy(utils.validateDateString('2020-03-05T19:56:02Z'));
+
+	// invalid Date, but still valid date string
+	// see convertDateToString
+	t.truthy(utils.validateDateString('2020-03-50T19:56:02+01:00'));
+
+	t.falsy(utils.validateDateString('yesterday'));
 
 });

@@ -135,37 +135,13 @@ export const parseResponseXML = (xml) => {
 
 		return parser.parse(xml, options);
 
-	}
-	else {
+	} else {
 
-		const error = new ResponseParsingError(parsingError.err.msg);
-		error.code = parsingError.err.code;
-		error.line = parsingError.err.line;
-		throw error;
+		const { msg, code, line } = parsingError.err;
+
+		throw new ResponseParsingError(msg, code, line);
 
 	}
-
-};
-
-export const getChild = (obj, childName, debugPath) => {
-
-	const element = obj[childName];
-	if (!isDefined(element)) {
-		throw new WrongServerResponse('XML element not defined: ' + debugPath);
-	}
-
-	return element;
-
-};
-
-export const getAttribute = (obj, attrName, debugPath) => {
-
-	const attribute = obj['_' + attrName];
-	if (!isDefined(attribute)) {
-		throw new WrongServerResponse('XML attribute not defined: ' + debugPath);
-	}
-
-	return attribute;
 
 };
 
@@ -173,8 +149,7 @@ export const getAttribute = (obj, attrName, debugPath) => {
  * Transform XML DOM into data object
  * @param parsed {object}
  * @returns {object}
- * @throws {ResponseParsingError}
- * @throws {ResponseServerError}
+ * @throws {WrongServerResponse}
  */
 export const extractResponse = parsed => {
 
@@ -182,25 +157,57 @@ export const extractResponse = parsed => {
 		throw new WrongServerResponse('XML response empty');
 	}
 
-	let odpoved = parsed['Envelope']?.['Body']?.['Odpoved'];
+	const odpoved = parsed['Envelope']?.['Body']?.['Odpoved'];
 
 	if (!isDefined(odpoved)) {
-
 		throw new WrongServerResponse('Response does not contain Envelope>Body>Odpoved');
-
 	}
 
 	const uuidZpravy = odpoved['Hlavicka']?.['_uuid_zpravy'];
 	const bkp = odpoved['Hlavicka']?.['_bkp'];
-	const datPrij = convertStringToDate(odpoved['Hlavicka']?.['_dat_prij']);
+
+	let datPrij = undefined;
+
+	if (isDefined(odpoved['Hlavicka']?.['_dat_prij'])) {
+
+		datPrij = convertStringToDate(odpoved['Hlavicka']['_dat_prij']);
+
+		if (!isDefined(datPrij)) {
+			throw new WrongServerResponse('Response contains an invalid value for Hlavicka>dat_prij');
+		}
+
+	}
+
+	let datOdmit = undefined;
+
+	if (isDefined(odpoved['Hlavicka']?.['_dat_odmit'])) {
+
+		datOdmit = convertStringToDate(odpoved['Hlavicka']['_dat_odmit']);
+
+		if (!isDefined(datOdmit)) {
+			throw new WrongServerResponse('Response contains an invalid value for Hlavicka>dat_odmit');
+		}
+
+	}
 
 	// test might be omitted if equal to false
-	const test = convertStringToBool(odpoved['Potvrzeni']?.['_test']) ?? 'false';
+	let test = false;
+
+	if (isDefined(odpoved['Potvrzeni']?.['_test'])) {
+
+		test = convertStringToBool(odpoved['Potvrzeni']['_test']);
+
+		if (!isDefined(test)) {
+			throw new WrongServerResponse('Response contains an invalid value in Hlavicka>test');
+		}
+
+	}
+
 	const fik = odpoved['Potvrzeni']?.['_fik'];
 
 	// zero or one error can be included
 	const error = isDefined(odpoved['Chyba'])
-		? { message: odpoved['Chyba']?.['#text'], code: odpoved['Chyba']?.['_kod'] }
+		? { message: odpoved['Chyba']['#text'], code: odpoved['Chyba']['_kod'] }
 		: undefined;
 
 	// zero or one or multiple warnings can be included
@@ -220,12 +227,17 @@ export const extractResponse = parsed => {
 		: [];
 
 	return {
+		// from the element Hlavicka
 		uuidZpravy,
-		bkp,
 		datPrij,
+		datOdmit,
+		bkp,
+		// from the element Potvrzeni
 		test,
 		fik,
+		// from the element Chyba
 		error,
+		// from the element Varovani
 		warnings,
 	};
 
@@ -235,8 +247,8 @@ export const extractResponse = parsed => {
  * Validate incoming response against sent request
  * UUID, BKP, test must be same in both response and request
  * datPrij and FIK must be valid
- * @throws ResponseServerError
- * @throws WrongServerResponse
+ * @throws {ResponseServerError}
+ * @throws {WrongServerResponse}
  */
 export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZpravy, bkp, datPrij, test, fik, error }) => {
 

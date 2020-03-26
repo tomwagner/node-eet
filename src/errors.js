@@ -16,9 +16,11 @@ export class ResponseServerError extends Error {
 // response could not be parsed
 export class ResponseParsingError extends Error {
 
-	constructor(message) {
+	constructor(message, code, line) {
 
 		super(message);
+		this.code = code;
+		this.line = line;
 		Error.captureStackTrace(this, this.constructor);
 
 	}

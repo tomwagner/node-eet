@@ -5,8 +5,10 @@ import { parseRequest } from './schema';
 import { extractResponse, fetchXml, parseResponseXML, serializeSoapEnvelope, validateResponse } from './xml';
 import { isDefined } from './utils';
 
-export { ResponseParsingError, ResponseServerError, RequestParsingError, WrongServerResponse } from './errors';
 
+// re-export "public" API so it is accessible from direct module import
+export { ResponseParsingError, ResponseServerError, RequestParsingError, WrongServerResponse } from './errors';
+export { parseRequest, generateBKP, generatePKP };
 
 export const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3';
 export const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
