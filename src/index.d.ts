@@ -1,7 +1,8 @@
 // Type definitions for index.js
 /// <reference types="node" />
 
-import { Agent } from "https";
+import { Agent } from 'https';
+import { KeyLike } from 'crypto';
 
 export const PLAYGROUND_URL: string;
 export const PRODUCTION_URL: string;
@@ -26,9 +27,9 @@ interface EETRequest {
 	overeni?: boolean;
 	dicPopl: string;
 	dicPoverujiciho?: string;
-	idProvoz: number | string;
-	idPokl: number | string;
-	poradCis: number | string;
+	idProvoz: number;
+	idPokl: string;
+	poradCis: string;
 	datTrzby: Date;
 	celkTrzba: number;
 	zaklNepodlDph?: number;
@@ -49,8 +50,8 @@ interface EETRequest {
 
 
 interface EETOptions {
-	privateKey: string | Buffer;
-	certificate: string | Buffer;
+	privateKey: KeyLike;
+	certificate: KeyLike;
 	timeout?: number;
 	playground?: boolean;
 	measureResponseTime?: boolean;
