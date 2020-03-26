@@ -2,7 +2,6 @@
 
 import test from 'ava';
 import * as errors from '../src/errors';
-import { WrongServerResponse } from '../src/errors';
 import * as xml from '../src/xml';
 import { validateResponse } from '../src/xml';
 
@@ -62,8 +61,8 @@ test('parseResponseXML ResponseParsingError', async t => {
 
 test('extractResponse empty', t => {
 
-	t.throws(() => xml.extractResponse({}), { instanceOf: WrongServerResponse });
-	t.throws(() => xml.extractResponse(undefined), { instanceOf: WrongServerResponse });
+	t.throws(() => xml.extractResponse({}), { instanceOf: errors.WrongServerResponse });
+	t.throws(() => xml.extractResponse(undefined), { instanceOf: errors.WrongServerResponse });
 
 });
 

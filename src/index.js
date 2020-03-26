@@ -4,7 +4,8 @@ import { generateBKP, generatePKP } from './crypto';
 import { parseRequest } from './schema';
 import { extractResponse, fetchXml, parseResponseXML, serializeSoapEnvelope, validateResponse } from './xml';
 import { isDefined } from './utils';
-import { ResponseParsingError } from './errors';
+
+export { ResponseParsingError, ResponseServerError, RequestParsingError, WrongServerResponse } from './errors';
 
 
 export const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3';

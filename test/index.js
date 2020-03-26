@@ -3,7 +3,6 @@
 import { Agent } from 'https';
 import fs from 'fs';
 import test from 'ava';
-import * as errors from '../src/errors';
 import * as eet from '../src/index';
 
 
@@ -111,7 +110,7 @@ test('sendEETRequest wrong certificate', async t => {
 		offline: false,
 	};
 
-	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: errors.ResponseServerError });
+	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: eet.ResponseServerError });
 
 	t.is(error.code, '4');
 	t.not(error.bkp, undefined);
@@ -174,7 +173,7 @@ test('sendEETRequest overeni', async t => {
 		measureResponseTime: true,
 	};
 
-	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: errors.ResponseServerError });
+	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: eet.ResponseServerError });
 
 	t.is(error.code, '0');
 	t.is(error.message, 'Datovou zpravu evidovane trzby v overovacim modu se podarilo zpracovat');
@@ -204,7 +203,7 @@ test('sendEETRequest production', async t => {
 		measureResponseTime: true,
 	};
 
-	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: errors.ResponseServerError });
+	const error = await t.throwsAsync(eet.sendEETRequest(data, options), { instanceOf: eet.ResponseServerError });
 
 	t.is(error.code, '4');
 
