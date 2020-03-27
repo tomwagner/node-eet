@@ -10,9 +10,11 @@ export const PRODUCTION_URL: string;
 // server returned error
 export class ResponseServerError extends Error {
 
+	message: string;
 	code: string;
+	datOdmit: string;
 
-	constructor(message: string, code: string);
+	constructor(message: string, code: string, datOdmit: string);
 
 }
 
@@ -130,6 +132,7 @@ interface EETResponse {
 	uuidZpravy: string;
 	bkp: string;
 	datPrij: Date;
+	datOdmit: Date;
 	test: boolean;
 	fik: string;
 	error?: EETError;

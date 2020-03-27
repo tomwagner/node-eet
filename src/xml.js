@@ -250,10 +250,10 @@ export const extractResponse = parsed => {
  * @throws {ResponseServerError}
  * @throws {WrongServerResponse}
  */
-export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZpravy, bkp, datPrij, test, fik, error }) => {
+export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZpravy, bkp, datPrij, test, fik, error, datOdmit }) => {
 
 	if (isDefined(error)) {
-		throw new ResponseServerError(error.message, error.code);
+		throw new ResponseServerError(error.message, error.code, datOdmit);
 	}
 
 	if (reqUuid !== uuidZpravy) {

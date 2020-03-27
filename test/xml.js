@@ -191,7 +191,10 @@ test('extractResponse error', async t => {
 		message: 'Neplatny kontrolni bezpecnostni kod poplatnika (BKP)',
 	};
 
-	t.deepEqual(xml.extractResponse(parsed).error, expected);
+	const extracted = xml.extractResponse(parsed);
+
+	t.deepEqual(extracted.error, expected);
+	t.deepEqual(extracted.datOdmit, new Date('2020-03-05T19:56:02+01:00'));
 
 });
 

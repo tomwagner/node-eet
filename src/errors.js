@@ -3,10 +3,11 @@
 // server returned error
 export class ResponseServerError extends Error {
 
-	constructor(message, code) {
+	constructor(message, code, datOdmit) {
 
 		super(message);
 		this.code = code;
+		this.datOdmit = datOdmit;
 		Error.captureStackTrace(this, this.constructor);
 
 	}
