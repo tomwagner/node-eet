@@ -43,8 +43,9 @@ test('convertStringToDate', t => {
 
 	t.deepEqual(utils.convertStringToDate('2020-03-05T19:56:02+01:00'), new Date('2020-03-05T19:56:02+01:00'));
 	t.is(utils.convertStringToDate('100-03-05T19:56:02+01:00'), undefined);
-	t.is(utils.convertStringToBool('yesterday'), undefined);
-	t.is(utils.convertStringToBool('20200305'), undefined);
+	t.is(utils.convertStringToDate('yesterday'), undefined);
+	t.is(utils.convertStringToDate('20200305'), undefined);
+	t.is(utils.convertStringToDate('2000-02-32T10:30:30Z'), undefined);
 
 });
 
