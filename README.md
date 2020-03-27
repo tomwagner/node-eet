@@ -1,4 +1,4 @@
-# eet
+# @nfctron/eet
 
 [![npm](https://img.shields.io/npm/v/@nfctron/eet.svg)](https://www.npmjs.com/package/@nfctron/eet)
 [![build status](https://img.shields.io/github/workflow/status/NFCtron/eet/CI?logo=github)](https://github.com/NFCtron/eet/actions?query=workflow%3ACI)
@@ -21,13 +21,15 @@ Fast, simple and almost [no dependencies](http://npm.broofa.com/?q=@nfctron/eet)
   - [Using Node.js library pem](#using-nodejs-library-pem)
 - [API](#api)
 - [Error handling](#error-handling)
-  - [ResponseServerError(message, code)](#responseservererrormessage-code)
-  - [ResponseParsingError(message, code, line)](#responseparsingerrormessage-code-line)
   - [RequestParsingError(message)](#requestparsingerrormessage)
+  - [Fetch errors](#fetch-errors)
+  - [ResponseParsingError(message, code, line)](#responseparsingerrormessage-code-line)
   - [WrongServerResponse(message)](#wrongserverresponsemessage)
+  - [ResponseServerError(message, code)](#responseservererrormessage-code)
 - [FAQ](#faq)
   - [Can this library be used directly in the browser?](#can-this-library-be-used-directly-in-the-browser)
 - [Missing features](#missing-features)
+  - [Verifying response signature](#verifying-response-signature)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -155,35 +157,65 @@ pem.readPkcs12(file, { p12Password: password }, (err, result) => {
 Public API is documented using a **TypeScript definition** in [src/index.d.ts](/src/index.d.ts).
 All notable options and values and their behavior is described in comments.
 
+The core function is `sendEETRequest(request, options)`
+which handles **the complete flow of sending an EET request**:
+1. it validates all request items and ensures that they match the schema
+2. it generates PKP and BKP
+3. it constructs SOAP XML request
+4. it sends the request using [node-fetch](https://github.com/node-fetch/node-fetch)
+5. it tries to parse the XML response
+6. it validates the parsed response
+    (and checks that uuidZpravy and bkp matches, but [signature is not verified]((#verifying-response-signature)))
+7. finally it returns the response that contains the FIK
+
 
 ## Error handling
 
-The are two types of error: fetch errors and custom EET errors. All errors contain generated `bkp` and `pkp` codes.
+There are several types of errors that can be thrown during the complete flow:
+1. in case that the validation in `parseRequst` detects invalid request data items,
+    [RequestParsingError](#requestparsingerrormessage) is thrown
+2. in case that invalid values were passed to `options.privateKey` and/or  `options.certificate`,
+    a Node.js's crypto Error may be thrown
+3. network failure, timeout, etc. may cause [Fetch errors](#fetch-errors) to be thrown
+4. during response parsing [ResponseParsingError](#responseparsingerrormessage-code-line) and [WrongServerResponse](#wrongserverresponsemessage) may be thrown
+5. finally if EET server returned an error, it will be thrown as [ResponseServerError](#responseservererrormessage-code)
+
+The errors in **cases 3, 4 and 5** will always contain **generated BKP and PKP codes** (`err.bkp` and `err.pkp`) that can be **used as "offline" response**.
+
+### RequestParsingError(message)
+
+Request parameter is empty, doesn't contain all required items or there is an invalid value for some field.
+Check if all required items are supplied in the correct format as specified in the [TypeScript definition](/src/index.d.ts)
+and in the [EET docs](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
 
 ### Fetch errors
 
 [FetchError](https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md) comes from [node-fetch](https://github.com/node-fetch/node-fetch) library, 
-every error is rethrown with extra `bkp` and `pkp` fields.
-
-
-### ResponseServerError(message, code)
-
-EET server returned <Error> tag. All possible error are specified in [Popis rozhraní](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
-Most notably *Neplatny podpis SOAP zpravy (4)* means that private key or certificate are in wrong format.
-They need to begin with `-----BEGIN RSA PRIVATE KEY-----` and `-----BEGIN CERTIFICATE-----` respectively.  
+every error is rethrown with extra `bkp` and `pkp` fields that can be used as "offline" response.
 
 ### ResponseParsingError(message, code, line)
 
-EET server responded with invalid XML.
+EET server responded with an XML, that could not be even parsed.
+XML parsing is done using [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser)
+and the `message`, `code` and `line` are the values from parser.validate err object.
 
-### RequestParsingError(message)
-
-Request parameter is empty, doesn't contain all required items or there is an invalid field.
-Check if all required items are supplied and in the correct format specified in [Popis rozhraní](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
+This error will always contain extra `bkp` and `pkp` fields that can be used as "offline" response.
 
 ### WrongServerResponse(message)
 
-EET server responded with invalid XML or didn't return required fields.
+EET server responded with an invalid XML or didn't return required fields.
+
+This error will always contain extra `bkp` and `pkp` fields that can be used as "offline" response.
+
+### ResponseServerError(message, code)
+
+EET server returned <Error> tag. All possible error are specified in the [EET docs](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
+
+Most notably *Neplatny podpis SOAP zpravy (4)* means
+that private key or certificate are in wrong format or the certificate may be invalid (expired, revoked, etc.).
+They need to begin with `-----BEGIN RSA PRIVATE KEY-----` and `-----BEGIN CERTIFICATE-----` respectively.
+
+This error will always contain extra `bkp` and `pkp` fields that can be used as "offline" response.
 
 
 ## FAQ
@@ -191,16 +223,17 @@ EET server responded with invalid XML or didn't return required fields.
 ### Can this library be used directly in the browser?
 
 Currently, it is not possible. But it could be done:
-1. CORS > must be disabled in the browser or all request must be sent via a proxy
-2. process.hrtime.bigint() > can be easily replaced
-3. Node.js crypto in src/crypto.js > can be easily replaced by [SubtleCrypto.digest](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest) the Web Crypto API
+1. CORS > must be disabled in the browser or all requests must be sent via a proxy
+2. `process.hrtime.bigint()` > can be easily replaced
+3. Node.js crypto in [src/crypto.js](/src/crypto.js) > can be easily replaced by [SubtleCrypto.digest](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest) the Web Crypto API
 4. node-fetch > not needed as Fetch API is available in the browser
 
 
 ## Missing features
 
-* Verifying response signature
-All communication must be digitally signed. Currently we are unable to transform response XML into canonical form 
+### Verifying response signature
+
+All communication must be digitally signed. Currently we are unable to transform response XML into the canonical form 
 in order to verify sender's signature. However a `rawResponse` field is returned, so it can be saved and verified later.
 Nevertheless all communication is encrypted and verified via HTTPS/TLS, so it is very difficult to forge response.
 
