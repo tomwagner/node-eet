@@ -10,32 +10,37 @@
     "elektronická evidence tržeb",
     "sales evidence"
   ],
-  "homepage": "https://github.com/NFCtron/eet#readme",
+  "homepage": "https://github.com/NFCtron/node-eet#readme",
   "bugs": {
-    "url": "https://github.com/NFCtron/eet/issues"
+    "url": "https://github.com/NFCtron/node-eet/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/NFCtron/eet.git"
+    "url": "https://github.com/NFCtron/node-eet.git"
   },
   "license": "MIT",
   "author": {
-    "name": "Jakub Mrozek",
-    "email": "jakub.mrozek@gmail.com",
-    "url": "http://www.ronnieweb.net/"
+    "name": "Martin Endler",
+    "url": "https://github.com/pokusew"
   },
   "contributors": [
     {
-      "name": "Martin Endler",
-      "url": "https://github.com/pokusew"
-    },
-    {
       "name": "Petr Zahradnik",
       "url": "https://github.com/petrzjunior"
+    },
+    {
+      "name": "Jakub Mrozek",
+      "email": "jakub.mrozek@gmail.com",
+      "url": "http://www.ronnieweb.net/"
     }
   ],
   "main": "dist/index.js",
   "types": "src/index.d.ts",
+  "files": [
+    "src/*.js",
+    "src/index.d.ts",
+    "dist/*.js"
+  ],
   "scripts": {
     "build": "babel src --out-dir dist",
     "test": "cross-env NODE_ENV=test nyc ava --verbose",
