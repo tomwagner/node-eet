@@ -145,12 +145,19 @@ test('extractResponse warning single', async t => {
 
 	const parsed = xml.parseResponseXML(response);
 
-	const expected = [{
-		message: 'DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu',
-		code: '1',
-	}];
+	const expected = {
+		uuidZpravy: 'ae0af488-5115-48c0-8d10-0861a2921981',
+		datPrij: new Date('2020-03-05T19:56:02+01:00'),
+		bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+		fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		test: true,
+		warnings: [{
+			message: 'DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu',
+			code: '1',
+		}],
+	};
 
-	t.deepEqual(xml.extractResponse(parsed).warnings, expected);
+	t.deepEqual(xml.extractResponse(parsed), expected);
 
 });
 
@@ -179,21 +186,28 @@ test('extractResponse warning multiple', async t => {
 
 	const parsed = xml.parseResponseXML(response);
 
-	const expected = [
-		{
-			message: 'DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu',
-			code: '1',
-		},
-		{
-			message: 'Chybny format DIC poverujiciho poplatnika',
-			code: '2',
-		},
-		{
-			message: 'Chybna hodnota PKP',
-			code: '3',
-		}];
+	const expected = {
+		uuidZpravy: 'ae0af488-5115-48c0-8d10-0861a2921981',
+		datPrij: new Date('2020-03-05T19:56:02+01:00'),
+		bkp: '6d8adb2d-a3a20e55-b78e8168-b240c580-38c71f7d',
+		fik: 'f741687f-61c8-4672-917a-46bcf8eff62d-fa',
+		test: true,
+		warnings: [
+			{
+				message: 'DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu',
+				code: '1',
+			},
+			{
+				message: 'Chybny format DIC poverujiciho poplatnika',
+				code: '2',
+			},
+			{
+				message: 'Chybna hodnota PKP',
+				code: '3',
+			}],
+	};
 
-	t.deepEqual(xml.extractResponse(parsed).warnings, expected);
+	t.deepEqual(xml.extractResponse(parsed), expected);
 
 });
 
