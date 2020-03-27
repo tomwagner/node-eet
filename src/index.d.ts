@@ -50,7 +50,7 @@ export class WrongServerResponse extends Error {
 interface EETRequest {
 
 	/**
-	 * UUID of message, default is UUID v4 generated via uuidjs/uuid library
+	 * UUID of the request, default is UUID v4 generated via uuidjs/uuid library
 	 * @see https://github.com/uuidjs/uuid
 	 */
 	uuidZpravy?: string;
@@ -91,9 +91,11 @@ interface EETRequest {
 	cerpZuct?: number;
 
 	/**
-	 * EET mode, default is '0'
+	 * EET mode
+	 * defaults to 0 = bezny rezim
+	 * 1 = zjednoduseny rezim
 	 */
-	rezim?: number;
+	rezim?: 0 | 1;
 
 }
 
@@ -110,18 +112,20 @@ interface EETOptions {
 	certificate: KeyLike;
 
 	/**
-	 * Response timeout in milliseconds, default is 10000
+	 * Response timeout in milliseconds, default is 10000 (10 s)
 	 */
 	timeout?: number;
 
 	/**
-	 * If true, playground URL is used instead of production URL to submit data, default is false
+	 * If true, requests are sent to the EET Playground, default is false
+	 * (i.e. requests are sent to the EET production server)
 	 */
 	playground?: boolean;
 
 	/**
 	 * Optional request to response time measurement, default is false
-	 * If set to true, time will be returned in response.requestTime
+	 * If set to true, measured time will be returned in EETResponse.responseTime
+	 * @see {EETResponse.responseTime}
 	 */
 	measureResponseTime?: boolean;
 
@@ -182,11 +186,22 @@ interface EETResponse {
 	uuidZpravy: string;
 	bkp: string;
 	datPrij: Date;
-	datOdmit?: Date;
+
+	/**
+	 * Equals to EETOptions.playground
+	 * @see {EETOptions.playground}
+	 */
 	test: boolean;
+
 	fik: string;
-	error?: EETError;
-	warnings: Array<EETError>;
+
+	warnings: EETError[];
+
+	/**
+	 * Measured time (in milliseconds) to get the response
+	 * Only present if EETOptions.measureResponseTime was set to true
+	 * @see {EETOptions.measureResponseTime}
+	 */
 	responseTime?: number;
 
 }
@@ -195,6 +210,10 @@ interface EETReturn {
 
 	request: EETParsedRequest;
 	response: EETResponse;
+
+	/**
+	 * Raw text response exactly as received from the EET server
+	 */
 	rawResponse: string;
 
 }
