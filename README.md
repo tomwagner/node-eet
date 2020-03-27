@@ -6,9 +6,7 @@
 
 Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1_EN.pdf) in the Czech Republic) ([Elektronickou evidenci tržeb](http://www.etrzby.cz/cs/technicka-specifikace)).
 
-⚠️ **This is a rewrite branch. Work in progress.**
-🎯 **Goal: remove dependencies on soap and xml-crypto (i.e. make a fast, zero-dependencies implementation)**
-
+Fast, simple and almost [no dependencies](http://npm.broofa.com/?q=@nfctron/eet).
 
 ## Content
 
@@ -22,10 +20,14 @@ Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz
   - [Using OpenSSL CLI](#using-openssl-cli)
   - [Using Node.js library pem](#using-nodejs-library-pem)
 - [API](#api)
-  - [createClient(options)](#createclientoptions)
-  - [EETClient.request(items)](#eetclientrequestitems)
-- [Frequent errors](#frequent-errors)
-  - [Neplatny podpis SOAP zpravy (4)](#neplatny-podpis-soap-zpravy-4)
+  - [sendEETRequest(request, options)](#sendeetrequestrequest-options)
+  - [Request](#request)
+  - [Options](#options)
+- [Errors](#errors)
+  - [ResponseServerError(message, code)](#responseservererrormessage-code)
+  - [ResponseParsingError(message, code, line)](#responseparsingerrormessage-code-line)
+  - [RequestParsingError(message)](#requestparsingerrormessage)
+  - [WrongServerResponse(message](#wrongserverresponsemessage)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -33,7 +35,7 @@ Node.js library for EET ([Electronic Registration of Sales](http://www.etrzby.cz
 
 ## Installation 
 
-**Requirements:** **at least Node.js 8 or newer**
+**Requirements:** **at least Node.js 10 or newer**
 
 Using npm:
 
@@ -51,38 +53,42 @@ yarn add @nfctron/eet
 ## Example usage
 
 ```javascript
-const { createClient } = require('eet');
+const { sendEETRequest } = require('eet');
 
 const options = {
-	privateKey: '...',
-	certificate: '...',
+	privateKey: PRIVATE_KEY,
+	certificate: CERTIFICATE,
 	playground: true,
 };
-
 const items = {
 	dicPopl: 'CZ1212121218',
-	idPokl: '/5546/RO24',
+	idProvoz: 273,
+	idPokl: '/554/RO24',
 	poradCis: '0/6460/ZQ42',
 	datTrzby: new Date(),
-	celkTrzba: 34113, // 341.13 CZK expressed in hundredths (haléře, aka cents)
-	idProvoz: 273,
+	celkTrzba: 12100, // 121 CZK
+	zaklDan1: 10000, // 100 CZK
+	dan1: 2100, // 21 CZK
 };
 
-// send request to obtain the FIK using async/await (Node.js 8+ / Babel)
-
-const client = await createClient(options);
-
+// send request to obtain the FIK using async/await (Node.js 10+ / Babel)
 try {
-	const { fik } = await client.request(items);
+    const { response } = sendEETRequest(items, options);
+    console.log('ok', response);
+}
+catch (e) {
+  console.error(e);
 }
 
+
 // send request to obtain the FIK using raw Promises
-createClient(options)
-	.then(client => client.request(items))
-	.then((({ request, response }) => {
-		// request contains complete data object sent to EET
-		// response.fik
-	}));
+sendEETRequest(items, options)
+	.then(({ response }) => {
+		console.log('ok', response);
+	})
+	.catch(err => {
+		console.error('error', err);
+	});
 ```
 
 
@@ -102,7 +108,7 @@ certificate and private key. You'll be prompted to enter the password of the PKC
 In case of testing certificates downloaded from etrzby.cz, it is `eet`.
 
 ```bash
-openssl pkcs12 -in original.p12 -clcerts -nocerts -nodes | openssl rsa > privkey.key
+openssl pkcs12 -in original.p12 -nocerts -nodes -out privkey.key
 openssl pkcs12 -in original.p12 -clcerts -nokeys -out cert.pem
 ```
 
@@ -127,37 +133,76 @@ pem.readPkcs12(file, { p12Password: password }, (err, result) => {
 
 ## API
 
+### sendEETRequest(request, options)
 
-### createClient(options)
+The only function to call is `sendEETRequest(items, options)`.
 
-|        name         |  type   | required | default |                                                      description                                                       |
-|---------------------|---------|----------|---------|------------------------------------------------------------------------------------------------------------------------|
-| **privateKey**      | string  | **yes**  |         | private key for the certificate                                                                                        |
-| **certificate**     | string  | **yes**  |         | certificate                                                                                                            |
-| offline             | boolean | no       | false   | if true, includes PKP and BKB in response on unsuccessful request to EET                                               |
-| playground          | boolean | no       | false   | use Playground EET endpoint instead of production                                                                      |
-| timeout             | number  | no       | 2000 ms | maximal time to wait in milliseconds                                                                                   |
-| measureResponseTime | boolean | no       | false   | measure response time using node-soap's [client.lastElapsedTime](https://github.com/vpulim/node-soap#options-optional) |
-| httpClient          | object  | no       |         | see [soap options](https://github.com/vpulim/node-soap#options), just for testing                                      |
+### Request
+
+Request items are specified in [Popis rozhraní](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
+Names are converted from snake_case to camelCase.
+
+| name            | type    | required     | default     |
+|-----------------|---------|--------------|-------------|
+| uuidZpravy      | string  | no           | random UUID |
+| datOdesl        | Date    | no           | Date.now()  |
+| prvniZaslani    | boolean | no           | true        |
+| overeni         | boolean | no           | false       |
+| dicPopl         | string  | **yes**      |             |
+| dicPoverujiciho | string  | no           |             |
+| idProvoz        | number  | **yes**      |             |
+| idPokl          | string  | **yes**      |             |
+| poradCis        | string  | **yes**      |             |
+| datTrzby        | Date    | **yes**      |             |
+| celkTrzba       | number  | **yes**      |             |
+| zaklNepodlDph   | number  | no           |             |
+| zaklDan1        | number  | no           |             |
+| dan1            | number  | no           |             |
+| zaklDan2        | number  | no           |             |
+| dan2            | number  | no           |             |
+| zaklDan3        | number  | no           |             |
+| dan3            | number  | no           |             |
+| cestSluz        | number  | no           |             |
+| pouzitZboz1     | number  | no           |             |
+| pouzitZboz2     | number  | no           |             |
+| pouzitZboz3     | number  | no           |             |
+| urcenoCerpZuct  | number  | no           |             |
+| cerpZuct        | number  | no           |             |
+| rezim           | number  | no           | 0           |
 
 
-### EETClient.request(items)
+### Options
 
-* *items* - data to send in EET request, same name as in EET specification but in camel case (so instead of `dic_popl` use `dicPopl`)
+| name                | type        | required     | default                                 | description                                                                                                 |
+|---------------------|-------------|--------------|-----------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| privateKey          | KeyLike     | **yes**      |                                         | Private key for request digital signature                                                                   |
+| certificate         | KeyLike     | **yes**      |                                         | Certificate containing public key associated to the private key                                             |
+| timeout             | number      | no           | 10000                                   | Response timeout in milliseconds                                                                             |
+| playground          | boolean     | no           | false                                   | Uses playground URL instead of production URL to submit data                                                |
+| measureResponseTime | boolean     | no           | false                                   | Measure time from request to response, returned in response.requestTime                                     |
+| userAgent           | string      | no           | 'nfctron/eet (+github.com/NFCtron/eet)' | Custom HTTP User-Agent header                                                                               |
+| agent               | https.Agent | no           |                                         | Custom Node [HTTPS Agent](https://nodejs.org/api/https.html#https_class_https_agent) to send request through |
 
-	**TODO** add table of items (required, data type, and description)
+## Errors
 
+### ResponseServerError(message, code)
 
-TODO document whole API
+EET server returned <Error> tag. All possible error are specified in [Popis rozhraní](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
+Most notably *Neplatny podpis SOAP zpravy (4)* means that private key or certificate are in wrong format.
+They need to begin with `-----BEGIN RSA PRIVATE KEY-----` and `-----BEGIN CERTIFICATE-----` respectively.  
 
+### ResponseParsingError(message, code, line)
 
-## Frequent errors
+EET server responded with invalid XML.
 
-### Neplatny podpis SOAP zpravy (4)
+### RequestParsingError(message)
 
-It is probably due the invalid certificate. Check that the certificate file starts with `-----BEGIN CERTIFICATE-----`.
-If not, remove any preceding text (e.g. Bag Attributes ...).
+Request parameter is empty, doesn't contain all required items or there is an invalid field.
+Check if all required items are supplied and in the correct format specified in [Popis rozhraní](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
 
+### WrongServerResponse(message)
+
+EET server responded with invalid XML or didn't return required fields.
 
 ## License
 

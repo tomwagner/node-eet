@@ -28,6 +28,10 @@
     {
       "name": "Martin Endler",
       "url": "https://github.com/pokusew"
+    },
+    {
+      "name": "Petr Zahradnik",
+      "url": "https://github.com/petrzjunior"
     }
   ],
   "main": "dist/index.js",

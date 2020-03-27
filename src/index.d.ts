@@ -132,8 +132,9 @@ interface EETResponse {
 	datPrij: Date;
 	test: boolean;
 	fik: string;
-	error?: EETError,
-	warnings: Array<EETError>,
+	error?: EETError;
+	warnings: Array<EETError>;
+	requestTime: number;
 
 }
 
