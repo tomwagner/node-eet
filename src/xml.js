@@ -166,30 +166,6 @@ export const extractResponse = parsed => {
 	const uuidZpravy = odpoved['Hlavicka']?.['_uuid_zpravy'];
 	const bkp = odpoved['Hlavicka']?.['_bkp'];
 
-	let datPrij = undefined;
-
-	if (isDefined(odpoved['Hlavicka']?.['_dat_prij'])) {
-
-		datPrij = convertStringToDate(odpoved['Hlavicka']['_dat_prij']);
-
-		if (!isDefined(datPrij)) {
-			throw new WrongServerResponse('Response contains an invalid value for Hlavicka>dat_prij');
-		}
-
-	}
-
-	let datOdmit = undefined;
-
-	if (isDefined(odpoved['Hlavicka']?.['_dat_odmit'])) {
-
-		datOdmit = convertStringToDate(odpoved['Hlavicka']['_dat_odmit']);
-
-		if (!isDefined(datOdmit)) {
-			throw new WrongServerResponse('Response contains an invalid value for Hlavicka>dat_odmit');
-		}
-
-	}
-
 	// test might be omitted if equal to false
 	let test = false;
 
@@ -202,13 +178,6 @@ export const extractResponse = parsed => {
 		}
 
 	}
-
-	const fik = odpoved['Potvrzeni']?.['_fik'];
-
-	// zero or one error can be included
-	const error = isDefined(odpoved['Chyba'])
-		? { message: odpoved['Chyba']['#text'], code: odpoved['Chyba']['_kod'] }
-		: undefined;
 
 	// zero or one or multiple warnings can be included
 	const warnings = isDefined(odpoved['Varovani'])
@@ -226,17 +195,60 @@ export const extractResponse = parsed => {
 		)
 		: [];
 
+	if (isDefined(odpoved['Chyba'])) {
+
+		const error = { message: odpoved['Chyba']['#text'], code: odpoved['Chyba']['_kod'] };
+
+		// it may not me present if the error is too critical
+		let datOdmit = undefined;
+
+		if (isDefined(odpoved['Hlavicka']?.['_dat_odmit'])) {
+
+			datOdmit = convertStringToDate(odpoved['Hlavicka']['_dat_odmit']);
+
+			if (!isDefined(datOdmit)) {
+				throw new WrongServerResponse('Response contains an invalid value for Hlavicka>dat_odmit');
+			}
+
+		}
+
+		// see EET docs 3.5.2
+		return {
+			// from the element Hlavicka
+			uuidZpravy,
+			datOdmit,
+			bkp,
+			// from the element Chyba
+			error,
+			// from the element Varovani
+			warnings,
+		};
+
+	}
+
+	let datPrij = undefined;
+
+	if (isDefined(odpoved['Hlavicka']?.['_dat_prij'])) {
+
+		datPrij = convertStringToDate(odpoved['Hlavicka']['_dat_prij']);
+
+		if (!isDefined(datPrij)) {
+			throw new WrongServerResponse('Response contains an invalid value for Hlavicka>dat_prij');
+		}
+
+	}
+
+	const fik = odpoved['Potvrzeni']?.['_fik'];
+
+	// see EET docs 3.4.2
 	return {
 		// from the element Hlavicka
 		uuidZpravy,
 		datPrij,
-		datOdmit,
 		bkp,
 		// from the element Potvrzeni
 		test,
 		fik,
-		// from the element Chyba
-		error,
 		// from the element Varovani
 		warnings,
 	};
