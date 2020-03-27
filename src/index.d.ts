@@ -7,20 +7,46 @@ import { KeyLike } from 'crypto';
 export const PLAYGROUND_URL: string;
 export const PRODUCTION_URL: string;
 
+// server returned error
 export class ResponseServerError extends Error {
+
+	code: string;
+
+	constructor(message: string, code: string);
+
 }
 
+// response could not be parsed
 export class ResponseParsingError extends Error {
+
+	message: string;
+	code: string;
+	line: string;
+
+	constructor(message: string, code: string, line: string);
+
 }
 
+// request could not be parsed
 export class RequestParsingError extends Error {
+
+	message: string;
+
+	constructor(message: string);
+
 }
 
+// server sent wrong or unexpected response
 export class WrongServerResponse extends Error {
-}
 
+	message: string;
+
+	constructor(message: string);
+
+}
 
 interface EETRequest {
+
 	uuidZpravy?: string;
 	datOdesl?: Date;
 	prvniZaslani?: boolean;
@@ -46,10 +72,12 @@ interface EETRequest {
 	urcenoCerpZuct?: number;
 	cerpZuct?: number;
 	rezim?: number;
+
 }
 
 
 interface EETOptions {
+
 	privateKey: KeyLike;
 	certificate: KeyLike;
 	timeout?: number;
@@ -57,9 +85,11 @@ interface EETOptions {
 	measureResponseTime?: boolean;
 	userAgent?: string;
 	agent?: Agent;
+
 }
 
 interface EETParsedRequest {
+
 	uuidZpravy: string;
 	datOdesl: string;
 	prvniZaslani: string;
@@ -85,14 +115,18 @@ interface EETParsedRequest {
 	urcenoCerpZuct?: string;
 	cerpZuct?: string;
 	rezim: '0' | '1';
+
 }
 
 interface EETError {
+
 	message: string;
 	code: string;
+
 }
 
 interface EETResponse {
+
 	uuidZpravy: string;
 	bkp: string;
 	datPrij: Date;
@@ -100,12 +134,25 @@ interface EETResponse {
 	fik: string;
 	error?: EETError,
 	warnings: Array<EETError>,
+
 }
 
 interface EETReturn {
+
 	request: EETParsedRequest;
 	response: EETResponse;
 	rawResponse: string;
+
 }
 
-export function sendEETRequest(request: EETRequest, options: EETOptions): EETReturn;
+/**
+ * Sends request to EET server
+ * @param request {EETRequest}
+ * @param options {EETOptions}
+ * @return {Promise<EETReturn>}
+ * @throws {RequestParsingError}
+ * @throws {ResponseParsingError}
+ * @throws {ResponseServerError}
+ * @throws {WrongServerResponse}
+ */
+export function sendEETRequest(request: EETRequest, options: EETOptions): Promise<EETReturn>;
