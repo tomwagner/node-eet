@@ -55,12 +55,14 @@ yarn add @nfctron/eet
 ```javascript
 const { sendEETRequest } = require('@nfctron/eet');
 
-// for example: you can load private key and certificate from the files
-// note: do not use readFileSync in the server (TODO: add link why)
+// for example: you can load private key and certificate from file
+// note: do not use readFileSync in the server
+//       because it will block the entire process until it completes
+//       use an asynchronous readFile instead
+//       (or load it from database or whatever works best for your use-case)
 const fs = require('fs');
 const PRIVATE_KEY = fs.readFileSync('path/to/private-key.pem');
 const CERTIFICATE = fs.readFileSync('path/to/certificate.pem');
-
 
 const options = {
 	privateKey: PRIVATE_KEY,
@@ -83,15 +85,15 @@ const items = {
 try {
 	const { response } = sendEETRequest(items, options);
 	console.log('ok', response);
-    // the response looks like
-    // ok {
-    //   uuidZpravy: '2dadefae-9926-403a-ace5-78f61a7a7882',
-    //   datPrij: 2020-03-27T20:51:48.000Z,
-    //   bkp: '032faa83-168bc061-4630c051-fce41ffa-dbc90815',
-    //   test: true,
-    //   fik: '09dfc04d-9e71-413a-9465-46bcf8ef3d0d-fa',
-    //   warnings: []
-    // }
+	// the response looks like:
+	// {
+	//   uuidZpravy: '2dadefae-9926-403a-ace5-78f61a7a7882',
+	//   datPrij: 2020-03-27T20:51:48.000Z,
+	//   bkp: '032faa83-168bc061-4630c051-fce41ffa-dbc90815',
+	//   test: true,
+	//   fik: '09dfc04d-9e71-413a-9465-46bcf8ef3d0d-fa',
+	//   warnings: []
+	// }
 }
 catch (e) {
 	console.error(e);
@@ -156,7 +158,13 @@ All notable options and values and their behavior is described in comments.
 
 ## Error handling
 
-TODO: describe
+The are two types of error: fetch errors and custom EET errors. All errors contain generated `bkp` and `pkp` codes.
+
+### Fetch errors
+
+[FetchError](https://github.com/node-fetch/node-fetch/blob/master/docs/ERROR-HANDLING.md) comes from [node-fetch](https://github.com/node-fetch/node-fetch) library, 
+every error is rethrown with extra `bkp` and `pkp` fields.
+
 
 ### ResponseServerError(message, code)
 
@@ -192,7 +200,9 @@ Currently, it is not possible. But it could be done:
 ## Missing features
 
 * Verifying response signature
-    TODO: what is it and why it does not matter much (and how rawResponse could help)
+All communication must be digitally signed. Currently we are unable to transform response XML into canonical form 
+in order to verify sender's signature. However a `rawResponse` field is returned, so it can be saved and verified later.
+Nevertheless all communication is encrypted and verified via HTTPS/TLS, so it is very difficult to forge response.
 
 
 ## License

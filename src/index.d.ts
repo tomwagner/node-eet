@@ -7,7 +7,7 @@ import { KeyLike } from 'crypto';
 export const PLAYGROUND_URL: string;
 export const PRODUCTION_URL: string;
 
-// TODO: add FetchError
+export { FetchError } from 'node-fetch';
 
 // server returned error
 export class ResponseServerError extends Error {
