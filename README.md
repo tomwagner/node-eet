@@ -53,7 +53,7 @@ yarn add @nfctron/eet
 ## Example usage
 
 ```javascript
-const { sendEETRequest } = require('eet');
+const { sendEETRequest } = require('@nfctron/eet');
 
 const options = {
 	privateKey: PRIVATE_KEY,
