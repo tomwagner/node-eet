@@ -197,15 +197,6 @@ Names are converted from snake_case to camelCase.
 
 ### Options
 
-| name                | type        | required     | default                                 | description                                                                                                 |
-|---------------------|-------------|--------------|-----------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| privateKey          | KeyLike     | **yes**      |                                         | Private key for request digital signature                                                                   |
-| certificate         | KeyLike     | **yes**      |                                         | Certificate containing public key associated to the private key                                             |
-| timeout             | number      | no           | 10000                                   | Response timeout in milliseconds                                                                             |
-| playground          | boolean     | no           | false                                   | Uses playground URL instead of production URL to submit data                                                |
-| measureResponseTime | boolean     | no           | false                                   | Measure time from request to response, returned in response.requestTime                                     |
-| userAgent           | string      | no           | 'nfctron/eet (+github.com/NFCtron/eet)' | Custom HTTP User-Agent header                                                                               |
-| agent               | https.Agent | no           |                                         | Custom Node [HTTPS Agent](https://nodejs.org/api/https.html#https_class_https_agent) to send request through |
 
 ## Errors
 

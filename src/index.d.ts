@@ -77,25 +77,71 @@ interface EETRequest {
 
 }
 
-
 interface EETOptions {
 
+	/**
+	 * Private key for request digital signature
+	 */
 	privateKey: KeyLike;
+
+	/**
+	 * Certificate containing public key associated to the private key
+	 */
 	certificate: KeyLike;
+
+	/**
+	 * Response timeout in milliseconds, default is 10000
+	 */
 	timeout?: number;
+
+	/**
+	 * If true, playground URL is used instead of production URL to submit data, default is false
+	 */
 	playground?: boolean;
+
+	/**
+	 * Optional request to response time measurement, default is false
+	 * If set to true, time will be returned in response.requestTime
+	 */
 	measureResponseTime?: boolean;
+
+	/**
+	 * Custom HTTP User-Agent header
+	 * Default is 'nfctron/eet (+github.com/NFCtron/eet)'
+	 */
 	userAgent?: string;
+
+	/**
+	 * Custom Node HTTPS Agent to send request through
+	 * @see https://nodejs.org/api/https.html#https_class_https_agent
+	 */
 	agent?: Agent;
 
 }
 
 interface EETParsedRequest {
 
+	/**
+	 * UUID of message, default is UUID v4 generated via uuidjs/uuid library
+	 * @see https://github.com/uuidjs/uuid
+	 */
 	uuidZpravy: string;
+
+	/**
+	 * Time of request sending, default is new Date()
+	 */
 	datOdesl: string;
+
+	/**
+	 * If true, flags request as first submit trial, default is true
+	 */
 	prvniZaslani: string;
+
+	/**
+	 * If true, submits request verification mode, default is false
+	 */
 	overeni: string;
+
 	dicPopl: string;
 	dicPoverujiciho?: string;
 	idProvoz: string;
@@ -116,6 +162,10 @@ interface EETParsedRequest {
 	pouzitZboz3?: string;
 	urcenoCerpZuct?: string;
 	cerpZuct?: string;
+
+	/**
+	 * EET mode, default is '0'
+	 */
 	rezim: '0' | '1';
 
 }
