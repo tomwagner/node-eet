@@ -135,7 +135,31 @@ pem.readPkcs12(file, { p12Password: password }, (err, result) => {
 
 ### sendEETRequest(request, options)
 
-The only function to call is `sendEETRequest(items, options)`.
+The only function to call is `sendEETRequest(request, options)`. It's that simple!
+
+The returning value consists of three parts:
+```typescript
+interface EETReturn {
+	request: EETParsedRequest; // parsed request
+	response: EETResponse;     // parsed response
+	rawResponse: string;       // raw XML response
+}
+```
+
+All fields returned by the EET server are inside `response`.
+
+| name         | type         | required |
+|--------------|--------------|----------|
+| uuidZpravy   | string       | **yes**  |
+| bkp          | string       | **yes**  |
+| datPrij      | Date         | **yes**  |
+| datOdmit     | Date         | no       |
+| test         | boolean      | **yes**  |
+| fik          | string       | **yes**  |
+| error        | Error        | no       |
+| warnings     | Array<Error> | **yes**  |
+| responseTime | number       | no       |
+
 
 ### Request
 

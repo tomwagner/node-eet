@@ -132,12 +132,12 @@ interface EETResponse {
 	uuidZpravy: string;
 	bkp: string;
 	datPrij: Date;
-	datOdmit: Date;
+	datOdmit?: Date;
 	test: boolean;
 	fik: string;
 	error?: EETError;
 	warnings: Array<EETError>;
-	requestTime: number;
+	responseTime?: number;
 
 }
 
