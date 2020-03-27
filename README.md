@@ -20,14 +20,14 @@ Fast, simple and almost [no dependencies](http://npm.broofa.com/?q=@nfctron/eet)
   - [Using OpenSSL CLI](#using-openssl-cli)
   - [Using Node.js library pem](#using-nodejs-library-pem)
 - [API](#api)
-  - [sendEETRequest(request, options)](#sendeetrequestrequest-options)
-  - [Request](#request)
-  - [Options](#options)
-- [Errors](#errors)
+- [Error handling](#error-handling)
   - [ResponseServerError(message, code)](#responseservererrormessage-code)
   - [ResponseParsingError(message, code, line)](#responseparsingerrormessage-code-line)
   - [RequestParsingError(message)](#requestparsingerrormessage)
-  - [WrongServerResponse(message](#wrongserverresponsemessage)
+  - [WrongServerResponse(message)](#wrongserverresponsemessage)
+- [FAQ](#faq)
+  - [Can this library be used directly in the browser?](#can-this-library-be-used-directly-in-the-browser)
+- [Missing features](#missing-features)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -55,33 +55,49 @@ yarn add @nfctron/eet
 ```javascript
 const { sendEETRequest } = require('@nfctron/eet');
 
+// for example: you can load private key and certificate from the files
+// note: do not use readFileSync in the server (TODO: add link why)
+const fs = require('fs');
+const PRIVATE_KEY = fs.readFileSync('path/to/private-key.pem');
+const CERTIFICATE = fs.readFileSync('path/to/certificate.pem');
+
+
 const options = {
 	privateKey: PRIVATE_KEY,
 	certificate: CERTIFICATE,
 	playground: true,
 };
+
 const items = {
 	dicPopl: 'CZ1212121218',
 	idProvoz: 273,
 	idPokl: '/554/RO24',
 	poradCis: '0/6460/ZQ42',
 	datTrzby: new Date(),
-	celkTrzba: 12100, // 121 CZK
-	zaklDan1: 10000, // 100 CZK
-	dan1: 2100, // 21 CZK
+	celkTrzba: 12100, // 121.00 CZK
+	zaklDan1: 10000, // 100.00 CZK
+	dan1: 2100, // 21.00 CZK
 };
 
-// send request to obtain the FIK using async/await (Node.js 10+ / Babel)
+// send request to obtain the FIK using async/await
 try {
-    const { response } = sendEETRequest(items, options);
-    console.log('ok', response);
+	const { response } = sendEETRequest(items, options);
+	console.log('ok', response);
+    // the response looks like
+    // ok {
+    //   uuidZpravy: '2dadefae-9926-403a-ace5-78f61a7a7882',
+    //   datPrij: 2020-03-27T20:51:48.000Z,
+    //   bkp: '032faa83-168bc061-4630c051-fce41ffa-dbc90815',
+    //   test: true,
+    //   fik: '09dfc04d-9e71-413a-9465-46bcf8ef3d0d-fa',
+    //   warnings: []
+    // }
 }
 catch (e) {
-  console.error(e);
+	console.error(e);
 }
 
-
-// send request to obtain the FIK using raw Promises
+// alternatively you can use raw Promises ...
 sendEETRequest(items, options)
 	.then(({ response }) => {
 		console.log('ok', response);
@@ -119,8 +135,9 @@ For example using package [pem](https://github.com/andris9/pem):
 
 ```javascript
 const pem = require('pem');
+const fs = require('fs');
 
-const file = require('fs').readFileSync('path/to/certificate.p12');
+const file = fs.readFileSync('path/to/certificate.p12');
 const password = '...'; // testing certificates downloaded from etrzby.cz have password 'eet'
 
 pem.readPkcs12(file, { p12Password: password }, (err, result) => {
@@ -133,72 +150,13 @@ pem.readPkcs12(file, { p12Password: password }, (err, result) => {
 
 ## API
 
-### sendEETRequest(request, options)
-
-The only function to call is `sendEETRequest(request, options)`. It's that simple!
-
-The returning value consists of three parts:
-```typescript
-interface EETReturn {
-	request: EETParsedRequest; // parsed request
-	response: EETResponse;     // parsed response
-	rawResponse: string;       // raw XML response
-}
-```
-
-All fields returned by the EET server are inside `response`.
-
-| name         | type         | required |
-|--------------|--------------|----------|
-| uuidZpravy   | string       | **yes**  |
-| bkp          | string       | **yes**  |
-| datPrij      | Date         | **yes**  |
-| datOdmit     | Date         | no       |
-| test         | boolean      | **yes**  |
-| fik          | string       | **yes**  |
-| error        | Error        | no       |
-| warnings     | Array<Error> | **yes**  |
-| responseTime | number       | no       |
+Public API is documented using a **TypeScript definition** in [src/index.d.ts](/src/index.d.ts).
+All notable options and values and their behavior is described in comments.
 
 
-### Request
+## Error handling
 
-Request items are specified in [Popis rozhraní](https://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.1.1.pdf).
-Names are converted from snake_case to camelCase.
-
-| name            | type    | required     | default     |
-|-----------------|---------|--------------|-------------|
-| uuidZpravy      | string  | no           | random UUID |
-| datOdesl        | Date    | no           | Date.now()  |
-| prvniZaslani    | boolean | no           | true        |
-| overeni         | boolean | no           | false       |
-| dicPopl         | string  | **yes**      |             |
-| dicPoverujiciho | string  | no           |             |
-| idProvoz        | number  | **yes**      |             |
-| idPokl          | string  | **yes**      |             |
-| poradCis        | string  | **yes**      |             |
-| datTrzby        | Date    | **yes**      |             |
-| celkTrzba       | number  | **yes**      |             |
-| zaklNepodlDph   | number  | no           |             |
-| zaklDan1        | number  | no           |             |
-| dan1            | number  | no           |             |
-| zaklDan2        | number  | no           |             |
-| dan2            | number  | no           |             |
-| zaklDan3        | number  | no           |             |
-| dan3            | number  | no           |             |
-| cestSluz        | number  | no           |             |
-| pouzitZboz1     | number  | no           |             |
-| pouzitZboz2     | number  | no           |             |
-| pouzitZboz3     | number  | no           |             |
-| urcenoCerpZuct  | number  | no           |             |
-| cerpZuct        | number  | no           |             |
-| rezim           | number  | no           | 0           |
-
-
-### Options
-
-
-## Errors
+TODO: describe
 
 ### ResponseServerError(message, code)
 
@@ -218,6 +176,24 @@ Check if all required items are supplied and in the correct format specified in 
 ### WrongServerResponse(message)
 
 EET server responded with invalid XML or didn't return required fields.
+
+
+## FAQ
+
+### Can this library be used directly in the browser?
+
+Currently, it is not possible. But it could be done:
+1. CORS > must be disabled in the browser or all request must be sent via a proxy
+2. process.hrtime.bigint() > can be easily replaced
+3. Node.js crypto in src/crypto.js > can be easily replaced by [SubtleCrypto.digest](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest) the Web Crypto API
+4. node-fetch > not needed as Fetch API is available in the browser
+
+
+## Missing features
+
+* Verifying response signature
+    TODO: what is it and why it does not matter much (and how rawResponse could help)
+
 
 ## License
 

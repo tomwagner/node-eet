@@ -7,6 +7,8 @@ import { KeyLike } from 'crypto';
 export const PLAYGROUND_URL: string;
 export const PRODUCTION_URL: string;
 
+// TODO: add FetchError
+
 // server returned error
 export class ResponseServerError extends Error {
 
@@ -108,8 +110,9 @@ interface EETOptions {
 
 	/**
 	 * Certificate containing public key associated to the private key
+	 * PEM base64 string
 	 */
-	certificate: KeyLike;
+	certificate: string;
 
 	/**
 	 * Response timeout in milliseconds, default is 10000 (10 s)

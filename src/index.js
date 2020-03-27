@@ -9,6 +9,7 @@ import { isDefined } from './utils';
 // re-export "public" API so it is accessible from direct module import
 export { ResponseParsingError, ResponseServerError, RequestParsingError, WrongServerResponse } from './errors';
 export { parseRequest, generateBKP, generatePKP };
+export { FetchError } from 'node-fetch';
 
 export const PLAYGROUND_URL = 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3';
 export const PRODUCTION_URL = 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3';
