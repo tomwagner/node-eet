@@ -38,9 +38,8 @@ test('parseResponseXML ResponseParsingError', async t => {
 	<eet:Potvrzeni fik="f741687f-61c8-4672-917a-46bcf8eff62d-fa" test="true" />
 </eet:Odpoved></soap:Bod`;
 
-	const error = t.throws(() => xml.parseResponseXML(response),
-		{ instanceOf: errors.ResponseParsingError },
-	);
+	const error = t.throws(() => xml.parseResponseXML(response), { instanceOf: errors.ResponseParsingError });
+
 	t.log('Error:', error.message, error.code);
 
 });
@@ -286,6 +285,7 @@ test('extractResponse error but missing dat_odmit', async t => {
 	};
 
 	const extracted = xml.extractResponse(parsed);
+
 	t.deepEqual(extracted, expected);
 
 });
