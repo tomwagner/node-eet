@@ -60,7 +60,7 @@ export const serializeSoapBody = ({ header, data, pkp, bkp }) =>
 ;
 
 /**
- * Generate body signature for XML element SignedInfo
+ * Generates body signature for XML element SignedInfo
  * @param digest {string} a SHA256 hash of body encoded as base64 string
  * @returns {string} SignedInfo tag in canonical form
  */
@@ -113,7 +113,7 @@ export const serializeSoapEnvelope = ({ header, data, pkp, bkp, privateKey, cert
 };
 
 /**
- * Parse XML response into DOM
+ * Parses XML response into DOM
  * @param xml {string}
  * @returns {object}
  * @throws {ResponseParsingError}
@@ -146,7 +146,7 @@ export const parseResponseXML = (xml) => {
 };
 
 /**
- * Transform XML DOM into data object
+ * Transforms XML DOM into data object
  * @param parsed {object}
  * @returns {object}
  * @throws {WrongServerResponse}
@@ -244,7 +244,7 @@ export const extractResponse = parsed => {
 };
 
 /**
- * Validate incoming response against sent request
+ * Validates incoming response against sent request
  * UUID, BKP, test must be same in both response and request
  * datPrij and FIK must be valid
  * @throws {ResponseServerError}
@@ -279,7 +279,7 @@ export const validateResponse = ({ reqUuid, reqBkp, reqPlayground }, { uuidZprav
 };
 
 /**
- * Fetch URL and return XML response
+ * Fetches URL and return XML response
  * @param url {string}
  * @param options {object}
  * @returns {Promise<string>}

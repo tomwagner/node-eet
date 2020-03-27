@@ -67,7 +67,7 @@ export const hashSha256Base64 = data => {
 };
 
 /**
- * Remove header and footer from PKCS#1 formatted string
+ * Removes header and footer from PKCS#1 formatted string
  * @param fileContent {string}
  * @returns {string}
  */
