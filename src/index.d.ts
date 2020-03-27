@@ -49,9 +49,25 @@ export class WrongServerResponse extends Error {
 
 interface EETRequest {
 
+	/**
+	 * UUID of message, default is UUID v4 generated via uuidjs/uuid library
+	 * @see https://github.com/uuidjs/uuid
+	 */
 	uuidZpravy?: string;
+
+	/**
+	 * Time of request sending, default is new Date()
+	 */
 	datOdesl?: Date;
+
+	/**
+	 * If true, flags request as first submit trial, default is true
+	 */
 	prvniZaslani?: boolean;
+
+	/**
+	 * If true, submits request verification mode, default is false
+	 */
 	overeni?: boolean;
 	dicPopl: string;
 	dicPoverujiciho?: string;
@@ -73,6 +89,10 @@ interface EETRequest {
 	pouzitZboz3?: number;
 	urcenoCerpZuct?: number;
 	cerpZuct?: number;
+
+	/**
+	 * EET mode, default is '0'
+	 */
 	rezim?: number;
 
 }
@@ -121,25 +141,9 @@ interface EETOptions {
 
 interface EETParsedRequest {
 
-	/**
-	 * UUID of message, default is UUID v4 generated via uuidjs/uuid library
-	 * @see https://github.com/uuidjs/uuid
-	 */
 	uuidZpravy: string;
-
-	/**
-	 * Time of request sending, default is new Date()
-	 */
 	datOdesl: string;
-
-	/**
-	 * If true, flags request as first submit trial, default is true
-	 */
 	prvniZaslani: string;
-
-	/**
-	 * If true, submits request verification mode, default is false
-	 */
 	overeni: string;
 
 	dicPopl: string;
@@ -162,10 +166,6 @@ interface EETParsedRequest {
 	pouzitZboz3?: string;
 	urcenoCerpZuct?: string;
 	cerpZuct?: string;
-
-	/**
-	 * EET mode, default is '0'
-	 */
 	rezim: '0' | '1';
 
 }
