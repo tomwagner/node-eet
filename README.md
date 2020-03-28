@@ -85,7 +85,7 @@ const items = {
 
 // send request to obtain the FIK using async/await
 try {
-	const { response } = sendEETRequest(items, options);
+	const { response } = await sendEETRequest(items, options);
 	console.log('ok', response);
 	// the response looks like:
 	// {
